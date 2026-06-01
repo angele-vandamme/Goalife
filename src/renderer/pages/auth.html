@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Goalife - Connexion</title>
+  <link rel="stylesheet" href="../css/auth.css">
+</head>
+<body>
+
+  <h1>Bienvenue sur Goalife</h1>
+  <p class="subtitle">'Ne rêvez plus vos objectifs, vivez-les'</p>
+
+  <div class="auth-container">
+
+    <!-- FORMULAIRE DE CONNEXION -->
+    <form id="login-form">
+      <div style="display:flex; flex-direction:column; gap:15px;">
+        <button type="button" class="google-btn">
+          <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+          Continuer avec Google
+        </button>
+
+        <p class="divider">ou</p>
+
+        <input type="email" id="login-email" placeholder="ADRESSE MAIL" required>
+        <input type="password" id="login-password" placeholder="MOT DE PASSE" required>
+
+        <button type="submit" class="submit-btn">Se connecter</button>
+
+        <a class="link-green">Reinitialiser le mot de passe</a>
+
+        <p class="toggle-link">
+          Pas encore de compte ? <span id="to-register">Créer-en-un</span>
+        </p>
+      </div>
+    </form>
+
+    <!-- FORMULAIRE D'INSCRIPTION -->
+    <form id="register-form" class="hidden">
+      <div style="display:flex; flex-direction:column; gap:15px;">
+        <input type="text" id="reg-prenom" placeholder="PRÉNOM" required>
+        <input type="text" id="reg-nom" placeholder="NOM (OPTIONNEL)">
+        <input type="email" id="reg-email" placeholder="ADRESSE MAIL" required>
+        <input type="password" id="reg-password" placeholder="MOT DE PASSE" required>
+
+        <button type="submit" class="submit-btn">S'inscrire</button>
+
+        <p class="toggle-link">
+          Déjà un compte ? <span id="to-login">Se connecter</span>
+        </p>
+      </div>
+    </form>
+
+    <div id="error-txt" class="error-message"></div>
+  </div>
+
+  <script src="../auth-renderer.js"></script>
+</body>
+</html>
