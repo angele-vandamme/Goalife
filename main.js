@@ -1,6 +1,5 @@
 const { app, shell, BrowserWindow } = require('electron')
 const path = require('path')
-
 require('./src/main/ipc.js')
 
 // On déclare d'ABORD la fonction createWindow pour qu'elle existe à coup sûr globalement
@@ -10,13 +9,17 @@ const createWindow = () => {
     height: 670,
     show: false,
     autoHideMenuBar: true,
+    icon: path.join(__dirname, 'assets/logo-goalife.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'src/main/preload.js'),
       sandbox: false,
       nodeIntegration: false,
       contextIsolation: true
     }
+   
   })
+
+  //mainWindow.webContents.openDevTools()
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -34,9 +37,6 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, 'src/renderer/pages/auth.html'))
   }
 }
-
-// Require les scripts et l'IPC en toute sécurité
-require('./src/main/ipc.js')
 
 // Initialisation de l'application
 app.whenReady().then(() => {
