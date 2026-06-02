@@ -11,10 +11,12 @@
 ```
 Goalife/
 ├── main.js                          ← Point d'entrée Electron
+├── assets/
+│   └── logo-goalife.ico             ← Icône de la fenêtre app
 ├── src/
 │   ├── main/
 │   │   ├── preload.js               ← Pont sécurisé (contextBridge)
-│   │   └── ipc.js                   ← Écouteurs IPC (auth)
+│   │   └── ipc.js                   ← Écouteurs IPC (auth + objectifs)
 │   ├── services/
 │   │   ├── supabase.js              ← Client Supabase initialisé
 │   │   └── auth.js                  ← signUp, signIn, signOut, getUser
@@ -22,7 +24,8 @@ Goalife/
 │       ├── css/
 │       │   └── auth.css             ← Style mis à jour (design maquette)
 │       ├── pages/
-│       │   └── auth.html            ← Page connexion/inscription
+│       │   ├── auth.html            ← Page connexion/inscription
+│       │   └── dashboard.html       ← Page dashboard (✅ créée)
 │       └── auth-renderer.js         ← Logique formulaires
 ```
 
@@ -44,7 +47,7 @@ Goalife/
 | id | uuid | PRIMARY KEY |
 | user_id | uuid | REFERENCES auth.users |
 | nom | varchar | NOT NULL |
-| statut | varchar | 'en cours' / 'à faire' / 'à planifier' |
+| statut | varchar | 'en cours' / 'à faire' / 'à planifier' / 'réalisé' |
 | duree | varchar | 'court terme' / 'moyen terme' / 'long terme' |
 | type | varchar | 'professionnel' / 'personnel' |
 | importance | varchar | 'élevé' / 'moyenne' / 'basse' |
@@ -64,30 +67,52 @@ Goalife/
 ## État de l'authentification ✅
 - Inscription : fonctionnelle — crée l'utilisateur dans `auth.users` ET dans la table `user`
 - Connexion : fonctionnelle
-- Après inscription : bascule automatiquement vers le formulaire de connexion avec l'email pré-rempli
+- Après connexion/inscription : redirige vers `dashboard.html` via `window.location.href`
 - Messages d'erreur en rouge, messages de succès en vert
+
+---
+
+## Dashboard ✅
+- Fichier : `src/renderer/pages/dashboard.html`
+- Sidebar menthe `#7FFFD4` avec bordure verte `#2EAF7D`
+- Fond principal blanc
+- Carte violette `#C9B8E8` centrée avec stats (réalisé / en cours / à réaliser)
+- Tableau "Last goal" avec les colonnes : Nom, Statut, Durée, Description, Catégorie, Importance
+- "A propos" + icône en haut à droite (zone blanche)
+- Navigation via `window.location.href` entre les pages
+- Données chargées via `window.electronAPI` (IPC) — à brancher dans `preload.js` + `ipc.js`
+
+---
+
+## Icône de l'application ✅
+- Fichier : `assets/logo-goalife.ico`
+- Configurée dans `main.js` via `icon: path.join(__dirname, 'assets/logo-goalife.ico')`
 
 ---
 
 ## Design (maquette appliquée) ✅
 | Élément | Valeur |
 |--------|--------|
-| Fond | Menthe `#7FFFD4` |
-| Carte | Violette claire `#C9B8E8` |
-| Bouton principal | Violet foncé `#7B5EA7` |
-| Liens | Vert `#2EAF7D` |
-| Titre | Cursif "Bienvenue sur Goalife" |
-| Sous-titre | Italique souligné |
+| Fond sidebar | Menthe `#7FFFD4` |
+| Fond principal | Blanc `#FFFFFF` |
+| Carte dashboard | Violette claire `#C9B8E8` |
+| Bouton actif | Violet foncé `#7B5EA7` |
+| Bordure boutons | Vert `#2EAF7D` |
+| Bordure sidebar | Vert `#2EAF7D` |
+| Titre auth | Cursif "Bienvenue sur Goalife" |
 | Inputs | Blancs, placeholder en majuscules |
 | Bouton Google | Blanc avec bordure (non fonctionnel) |
 
 ---
 
 ## Prochaines étapes 🔜
-1. Créer la page **dashboard** (`dashboard.html`) et rediriger après connexion
-2. Implémenter la gestion des **objectifs** (CRUD)
-3. Brancher l'IPC pour les objectifs dans `ipc.js`
-4. *(Optionnel)* Connexion Google OAuth
+1. Brancher `preload.js` + `ipc.js` pour `getObjectifs` et `getUserProfile`
+2. Implémenter le CRUD objectifs (liste, ajout, édition, suppression)
+3. Créer les pages restantes : Nouvel objectif, Objectif Pro, Objectif Perso, Paramètres, À propos, Compte
+4. Notifications OS + icône zone de notification
+5. Crash reporter Supabase
+6. Installeur (electron-builder)
+7. *(Optionnel)* Publication sur scoop/chocolatey
 
 ---
 
@@ -97,24 +122,27 @@ Goalife/
 - **Authentification** (2pts) — Supabase + RLS
 - **Base de données** — table `objectif` prête
 - **Design/maquette** (2pts) — maquette Figma + design appliqué
+- **Dashboard** — page créée, design fidèle à la maquette
+- **Icône app** — logo Goalife configuré dans `main.js`
+- **Redirection** après connexion vers dashboard
 
 ### 🔜 Reste à faire
 
 | Tâche | Points | Priorité |
 |-------|--------|----------|
-| CRUD objectifs (create, read, update, delete) | 2pts | 🔥 Ce soir |
-| 8 écrans minimum | 2pts | 🔥 Ce soir |
-| App élégante desktop | 2pts | 🔥 Ce soir |
-| 4 fonctionnalités natives OS | 2pts | ⚡ Demain |
-| Crash reporter / logs Supabase | 1pt | ⚡ Demain |
-| Installeur (electron-builder) | 1pt | ⚡ Demain |
-| Publication (scoop/chocolatey) | 2pts | 🕐 Après mercredi |
+| CRUD objectifs (create, read, update, delete) | 2pts | 🔥 |
+| 8 écrans minimum | 2pts | 🔥 |
+| App élégante desktop | 2pts | 🔥 |
+| 4 fonctionnalités natives OS | 2pts | ⚡ |
+| Crash reporter / logs Supabase | 1pt | ⚡ |
+| Installeur (electron-builder) | 1pt | ⚡ |
+| Publication (scoop/chocolatey) | 2pts | 🕐 |
 | Questions oral | 4pts | — |
 
 ### 📅 Ordre de priorité
-1. Dashboard + redirect après connexion
+1. Brancher IPC pour dashboard (getObjectifs, getUserProfile)
 2. CRUD objectifs (liste, ajout, édition, suppression)
-3. Les 8 écrans : Accueil, Liste, Détail, Ajout, Édition, Paramètres, Auth, À propos
+3. Les 8 écrans : Accueil ✅, Auth ✅, Nouvel objectif, Objectif Pro, Objectif Perso, Paramètres, Compte, À propos
 4. Notifications OS + icône zone de notification
 5. Crash reporter Supabase
 6. Installeur
