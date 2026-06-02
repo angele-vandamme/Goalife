@@ -39,7 +39,7 @@ loginForm.addEventListener('submit', async (e) => {
     showError("Échec de la connexion : " + result.error.message);
   } else {
     alert("Connexion réussie ! Redirection vers le Dashboard...");
-    // TODO: Rediriger vers la page dashboard.html
+    window.location.href = 'dashboard.html';
   }
 });
 

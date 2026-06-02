@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Goalife - Nouvel Objectif</title>
+  <link rel="stylesheet" href="../css/new-goal.css">
+</head>
+<body>
+
+  <!-- L'enveloppe LAYOUT indispensable pour structurer Sidebar + Main -->
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="logo">Goalife</div>
+
+      <button onclick="navigate('compte')">Compte</button>
+      <button onclick="navigate('accueil')" class="active">Accueil</button>
+      <button onclick="navigate('objectif-pro')">Objectif Pro</button>
+      <button onclick="navigate('objectif-perso')">Objectif Perso</button>
+      
+      <!-- ID conservé pour ton script JavaScript -->
+      <div id="user-name" class="user-name">Prénom</div>
+      <button onclick="navigate('parametres')">Paramètres</button>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      
+      <!-- TOP BAR -->
+      <div class="topbar">
+        <span>A propos</span>
+        <div class="info-icon">i</div>
+      </div>
+
+      <!-- UNIQUE CARTE : Style calqué sur le Dashboard -->
+      <div class="goal-card">
+        <h1>Créer un objectif</h1>
+
+        <!-- FORMULAIRE (Double colonne gérée par le CSS) -->
+        <form id="form-nouvel-objectif" class="form-container">
+          
+          <!-- COLONNE GAUCHE -->
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="form-group">
+              <label>Nom d'objectif <span>ⓘ</span></label>
+              <input type="text" id="input-nom" class="input-field" placeholder="Titre de l'objectif..." required>
+            </div>
+            
+            <div class="form-group">
+              <label>Statut <span>ⓘ</span></label>
+              <select id="select-statut" class="input-field" style="cursor: pointer;">
+                <option value="en cours" selected>En cours</option>
+                <option value="réalisé">Objectif réalisé</option>
+                <option value="à faire">A réaliser</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Duree <span>ⓘ</span></label>
+              <select id="select-duree" class="input-field" style="cursor: pointer;">
+                <option value="court terme" selected>Court terme</option>
+                <option value="moyen terme">Moyen terme</option>
+                <option value="long terme">Long terme</option>
+              </select>
+            </div>
+
+          <div class="form-group">
+            <label>Type d'objectif <span>ⓘ</span></label>
+            <select id="select-type" class="input-field" style="cursor: pointer;">
+              <option value="professionnel" selected>Professionnel</option>
+              <option value="personnel">Personnel</option>
+            </select>
+            </div>
+          </div>
+
+          <!-- COLONNE DROITE -->
+          <div style="display: flex; flex-direction: column; gap: 16px; justify-content: space-between;">
+
+            <div class="form-group">
+              <label>Importance <span>ⓘ</span></label>
+              <select id="select-importance" class="input-field" style="cursor: pointer;">
+                <option value="basse">Basse</option>
+                <option value="moyenne" selected>Moyenne</option>
+                <option value="haute">Elevé</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Image</label>
+              <div class="image-upload-box">
+                <div id="image-preview" class="image-preview-mini">Aperçu</div>
+                <button type="button" id="btn-importer" class="btn-upload">Importer</button>
+              </div>
+            </div>
+
+            <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
+              <label>Description</label>
+              <textarea id="input-description" class="input-field" style="flex: 1;" placeholder="Détails de l'objectif..."></textarea>
+            </div>
+
+            <!-- BOUTONS D'ACTION (Gérés sur toute la largeur en bas) -->
+            <div class="form-actions">
+              <button type="submit" class="btn-submit">Créer</button>
+              <button type="button" onclick="annuler()" class="btn-cancel">Annuler</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Script au bon emplacement avec sa correction de chemin -->
+  <script src="../nouvel-objectif-renderer.js"></script>
+</body>
+</html>
