@@ -23,6 +23,16 @@ ipcMain.handle('auth:getUser', async () => {
   return await getUser()
 })
 
+ipcMain.handle('settings:getAutoLaunch', () => {
+  return app.getLoginItemSettings()
+})
+
+ipcMain.removeHandler('settings:setAutoLaunch')
+ipcMain.handle('settings:setAutoLaunch', (event, enabled) => {
+  app.setLoginItemSettings({ openAtLogin: enabled })
+  return { success: true }
+})
+
 // Ajout pour le Dashboard : Récupérer les infos de la table 'user'
 ipcMain.removeHandler('profile:getUserProfile'); // Sécurité doublon
 ipcMain.handle('profile:getUserProfile', async () => {
@@ -238,14 +248,3 @@ ipcMain.handle('goals:export', async (event, data) => {
   }
 })
 
-ipcMain.removeHandler('settings:setAutoLaunch')
-ipcMain.handle('settings:setAutoLaunch', (event, enabled) => {
-  app.setLoginItemSettings({ openAtLogin: enabled })
-  return { success: true }
-})
-
-ipcMain.removeHandler('settings:getAutoLaunch')
-ipcMain.handle('settings:getAutoLaunch', () => {
-  const { openAtLogin } = app.getLoginItemSettings()
-  return { openAtLogin }
-})

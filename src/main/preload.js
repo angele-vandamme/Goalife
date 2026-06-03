@@ -21,6 +21,6 @@ contextBridge.exposeInMainWorld('api', {
   updateObjectif: (updates) => ipcRenderer.invoke('goals:update', updates),
   deleteObjectif: (id) => ipcRenderer.invoke('goals:delete', id),
   exportGoals: (data) => ipcRenderer.invoke('goals:export', data),
-  setAutoLaunch: (enabled) => ipcRenderer.invoke('settings:setAutoLaunch', enabled),
   getAutoLaunch: () => ipcRenderer.invoke('settings:getAutoLaunch'),
+  setAutoLaunch: (enabled) => ipcRenderer.invoke('settings:setAutoLaunch', enabled),
 })

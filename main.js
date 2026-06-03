@@ -30,7 +30,7 @@ const createWindow = () => {
     mainWindow.show()
   })
 
-// 🎯 GESTION DE LA FERMETURE : Cacher la fenêtre au lieu de quitter l'app
+// GESTION DE LA FERMETURE : Cacher la fenêtre au lieu de quitter l'app
   mainWindow.on('close', (event) => {
     if (!app.isQuitting) {
       event.preventDefault()
