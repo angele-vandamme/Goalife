@@ -48,19 +48,45 @@ ipcMain.handle('profile:getUserProfile', async () => {
 // Écouteurs pour les Objectifs (Nettoyés et sécurisés contre les doublons)
 // =========================================================================
 
-// Récupérer la liste complète triée par nouveauté
-ipcMain.removeHandler('goals:get'); // 🎯 FIX : Supprime le handler existant s'il y en a un pour éviter l'erreur de crash
+// Récupérer la liste complète filtrée par l'utilisateur connecté, triée par nouveauté
+ipcMain.removeHandler('goals:get'); 
 ipcMain.handle('goals:get', async () => {
   try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) throw new Error("Utilisateur non authentifié")
+
     const { data, error } = await supabase
       .from('objectif')
       .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
     if (error) throw error
     return { data } 
   } catch (error) {
     console.error('Erreur IPC getObjectifs:', error.message)
+    return { data: [] }
+  }
+})
+
+// Récupérer les objectifs filtrés par type ET par utilisateur connecté
+ipcMain.removeHandler('goals:getByType')
+ipcMain.handle('goals:getByType', async (event, type) => {
+  try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) throw new Error("Utilisateur non authentifié")
+
+    const { data, error } = await supabase
+      .from('objectif')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('type', type)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return { data }
+  } catch (error) {
+    console.error('Erreur IPC getObjectifsByType:', error.message)
     return { data: [] }
   }
 })
@@ -95,20 +121,31 @@ ipcMain.handle('goals:create', async (event, goal) => {
   }
 })
 
-// Modifier un objectif
+// Modifier un objectif (avec vérification de propriété)
 ipcMain.removeHandler('goals:update');
 ipcMain.handle('goals:update', async (event, updates) => {
   try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) throw new Error("Utilisateur non authentifié")
+
     const { id, ...fields } = updates;
-    console.log('=== goals:update ===');
-    console.log('id:', id);
-    console.log('fields:', fields);
+    
+    // Vérifier que l'objectif appartient à l'utilisateur
+    const { data: objectif, error: checkError } = await supabase
+      .from('objectif')
+      .select('user_id')
+      .eq('id', id)
+      .maybeSingle()
+    
+    if (checkError || !objectif || objectif.user_id !== user.id) {
+      throw new Error("Accès non autorisé à cet objectif")
+    }
+
     const { error, data } = await supabase
       .from('objectif')
       .update(fields)
       .eq('id', id);
-    console.log('supabase error:', error);
-    console.log('supabase data:', data);
+    
     if (error) throw error;
     return { success: true };
   } catch (error) {
@@ -117,17 +154,33 @@ ipcMain.handle('goals:update', async (event, updates) => {
   }
 });
 
-// Supprimer un objectif
+// Supprimer un objectif (avec vérification de propriété)
 ipcMain.removeHandler('goals:delete');
 ipcMain.handle('goals:delete', async (event, id) => {
   try {
-    const { data, error } = await supabase
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) throw new Error("Utilisateur non authentifié")
+
+    // Vérifier que l'objectif appartient à l'utilisateur
+    const { data: objectif, error: checkError } = await supabase
+      .from('objectif')
+      .select('user_id')
+      .eq('id', id)
+      .maybeSingle()
+    
+    if (checkError || !objectif || objectif.user_id !== user.id) {
+      throw new Error("Accès non autorisé à cet objectif")
+    }
+
+    const { error } = await supabase
       .from('objectif')
       .delete()
       .eq('id', id);
+    
     if (error) throw error;
     return { success: true };
   } catch (error) {
+    console.error('Erreur IPC deleteObjectif:', error.message)
     return { success: false, error: error.message };
   }
 });

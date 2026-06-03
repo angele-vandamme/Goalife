@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Afficher le prénom de l'utilisateur connecté dans la sidebar
   try {
       const profile = await window.api.getUserProfile();
-      if (profile && profile.data) {
-        document.getElementById('user-name').textContent = profile.data.prenom || "Prénom";
+      if (profile?.data?.prenom) {
+        document.getElementById('user-name').textContent = profile.data.prenom;
       }
     } catch (err) {
         console.error("Erreur chargement profil sidebar:", err);
