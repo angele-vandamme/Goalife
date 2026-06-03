@@ -1,0 +1,262 @@
+* {
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+ 
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #7FFFD4;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+ 
+/* TOP BAR */
+.topbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 8px;
+    width: 100%;
+    flex-shrink: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.topbar span {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.topbar .info-icon {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+/* LAYOUT */
+.layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    background: white;
+    border: 3px solid #2EAF7D;
+    border-top: none;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 220px;
+    background: #7FFFD4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 16px 20px;
+    gap: 30px;
+    flex-shrink: 0;
+    border-right: none;
+    box-shadow: 3px 0 0 0 #2EAF7D;
+}
+
+.sidebar .logo {
+    font-family: 'Georgia', cursive;
+    font-size: 36px;
+    font-style: italic;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.sidebar button {
+    width: 100%;
+    padding: 10px 0;
+    border-radius: 30px;
+    border: 2px solid #2EAF7D;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: white;
+    transition: background 0.15s, color 0.15s;
+}
+
+.sidebar button:hover { background: #e8e0f5; }
+.sidebar button.active {
+    background: #7B5EA7;
+    color: white;
+    border-color: #7B5EA7;
+}
+
+.sidebar .user-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: auto;
+}
+
+/* MAIN CONTENT HOLDER */
+.main {
+    flex: 1;
+    padding: 20px 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+
+/* ==========================================================================
+   LA CARTE DU FORMULAIRE (Même look que la Dashboard-card)
+   ========================================================================== */
+.goal-card {
+    width: 100%;
+    max-width: 820px;
+    background: #C9B8E8; /* Même fond violet clair que le Dashboard */
+    border-radius: 18px;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.goal-card h1 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: #000;
+}
+
+
+/* ==========================================================================
+   STRUCTURE INTERNE DU FORMULAIRE (Le contenu spécifique)
+   ========================================================================== */
+.form-container {
+    background: #9B7FD4; /* Violet foncé identique à la table-wrapper du dashboard */
+    border-radius: 12px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Double colonne */
+    gap: 20px;
+}
+
+/* Groupes de champs */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+}
+
+/* Inputs, Selects et Textarea */
+.input-field {
+    background: white;
+    color: #333;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-field:focus {
+    border-color: #7B5EA7;
+}
+
+textarea.input-field {
+    height: 110px;
+    resize: none;
+}
+
+/* Zone d'import d'image */
+.image-upload-box {
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px dashed rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.image-preview-mini {
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #666;
+    font-weight: bold;
+}
+
+.btn-upload {
+    padding: 8px 14px;
+    background: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.btn-upload:hover { background: #e8e0f5; }
+
+/* Zone des boutons d'action en bas */
+.form-actions {
+    grid-column: span 2; /* Prend toute la largeur sur les deux colonnes */
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.btn-submit {
+    flex: 1;
+    padding: 12px 0;
+    background: #2EAF7D; /* Vert thématique */
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.btn-cancel {
+    flex: 1;
+    padding: 12px 0;
+    background: #ff7675; /* Rouge doux pour annuler */
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.btn-submit:hover, .btn-cancel:hover {
+    opacity: 0.9;
+}

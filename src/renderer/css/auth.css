@@ -1,0 +1,162 @@
+:root {
+  --bg-mint: #7FFFD4;
+  --card-purple: #C9B8E8;
+  --btn-purple: #7B5EA7;
+  --white: #ffffff;
+  --link-green: #2EAF7D;
+  --text-dark: #1a1a1a;
+  --input-border: #b0a0d0;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-mint);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  font-family: 'Brush Script MT', cursive;
+  font-size: 3.5rem;
+  color: var(--text-dark);
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+p.subtitle {
+  font-style: italic;
+  text-decoration: underline;
+  font-family: 'Brush Script MT', cursive;
+  font-size: 1.2rem;
+  color: var(--text-dark);
+  margin: 0 0 30px 0;
+  text-align: center;
+}
+
+.auth-container {
+  background-color: var(--card-purple);
+  padding: 35px 40px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background-color: var(--white);
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.google-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.google-btn img {
+  width: 24px;
+  height: 24px;
+}
+
+.divider {
+  text-align: center;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--input-border);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background-color: var(--white);
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+input:focus {
+  border-color: var(--btn-purple);
+}
+
+input::placeholder {
+  color: #999;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--btn-purple);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+  background-color: #5c438a;
+}
+
+.link-green {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--link-green);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.link-green:hover {
+  text-decoration: underline;
+}
+
+.toggle-link {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+}
+
+.toggle-link span {
+  color: var(--link-green);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.error-message {
+  font-size: 0.85rem;
+  margin-top: 5px;
+  display: none;
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
+}

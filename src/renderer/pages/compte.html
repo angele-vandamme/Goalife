@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Goalife - Mon Compte</title>
+  <link rel="stylesheet" href="../css/settings-view.css">
+</head>
+<body>
+
+  <!-- TOP BAR -->
+<div class="topbar" onclick="navigate('a-propos')" style="cursor: pointer;">
+  <span>A propos</span>
+  <div class="info-icon">i</div>
+</div>
+
+  <div class="layout">
+    
+    <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">Goalife</div>
+    
+      <button id="btn-dashboard" onclick="navigate('accueil')">Accueil</button>
+      <button id="btn-compte" class="active" onclick="navigate('compte')">Compte</button>
+      <button id="btn-nouvel" onclick="navigate('nouvel-objectif')">Nouvel objectif</button>
+      <button id="btn-pro" onclick="navigate('objective-pro')">Objectif Pro</button>
+      <button id="btn-perso" onclick="navigate('objectif-perso')">Objectif Perso</button>
+
+    <div class="user-name" id="user-name">Prénom</div>
+    <button onclick="window.location.href='parametres.html'">Paramètres</button>
+  </aside>
+    
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      <div class="dashboard-card">
+        <h2>👤 Mon Profil Utilisateur</h2>
+        <p style="opacity: 0.8; margin-bottom: 10px;">Vos informations :</p>
+        
+        <!-- Formulaire Profil -->
+        <div class="profile-form">
+          <div class="info-group">
+            <label>Prénom</label>
+            <div id="user-prenom" class="info-value">Chargement...</div>
+          </div>
+
+          <div class="info-group">
+            <label>Nom</label>
+            <div id="user-nom" class="info-value">Chargement...</div>
+          </div>
+
+          <button id="btn-logout" class="btn-logout">Se déconnecter de l'application</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../compte-renderer.js"></script>
+</body>
+</html>

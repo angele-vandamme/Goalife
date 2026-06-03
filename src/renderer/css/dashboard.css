@@ -1,0 +1,207 @@
+* {
+   margin: 0; 
+   padding: 0; 
+   box-sizing: border-box; 
+}
+ 
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #7FFFD4;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+ 
+    /* TOP BAR */
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px 20px;
+  gap: 8px;
+  width: 100%;
+  flex-shrink: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.topbar span {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.topbar .info-icon {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* LAYOUT */
+.layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background: white;
+  border: 3px solid #2EAF7D;
+  border-top: none;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background: #7FFFD4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 16px 20px;
+  gap: 30px;
+  flex-shrink: 0;
+  border-right: none;
+  box-shadow: 3px 0 0 0 #2EAF7D;
+}
+
+.sidebar .logo {
+  font-family: 'Georgia', cursive;
+  font-size: 36px;
+  font-style: italic;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.sidebar button {
+  width: 100%;
+  padding: 10px 0;
+  border-radius: 30px;
+  border: 2px solid #2EAF7D;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: white;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar button:hover { background: #e8e0f5; }
+.sidebar button.active {
+  background: #7B5EA7;
+  color: white;
+  border-color: #7B5EA7;
+}
+
+.sidebar .user-name {
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: auto;
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.dashboard-card {
+  width: 100%;
+  max-width: 820px;
+}
+
+/* DASHBOARD CARD */
+.dashboard-card {
+  background: #C9B8E8;
+  border-radius: 18px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-card h1 {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* STATS ROW */
+.stats-row {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-box {
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.stat-box .label {
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+}
+.stat-box .value {
+  font-size: 32px;
+  font-weight: bold;
+}
+.stat-box:first-child .label { text-decoration: underline; }
+
+/* LAST GOAL SECTION */
+.last-goal h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.table-wrapper {
+  background: #9B7FD4;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr {
+  background: white;
+}
+
+thead th {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  border-right: 1px solid #ddd;
+}
+thead th:last-child { border-right: none; }
+
+tbody tr {
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+tbody td {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: white;
+}
+
+.empty-row td {
+  height: 80px;
+}
