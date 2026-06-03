@@ -9,7 +9,7 @@ let tray = null
 
 // On déclare d'ABORD la fonction createWindow pour qu'elle existe à coup sûr globalement
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
