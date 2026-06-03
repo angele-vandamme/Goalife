@@ -77,7 +77,8 @@ app.whenReady().then(() => {
     { 
       label: 'Quitter', 
       click: () => {
-        app.isQuitting = true 
+        app.isQuitting = true
+        app.quit() 
     }
 }])
 
