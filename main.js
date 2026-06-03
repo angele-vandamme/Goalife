@@ -1,15 +1,58 @@
-const { app, shell, BrowserWindow, Tray, Menu } = require('electron')
+const { app, shell, BrowserWindow, Tray, Menu, crashReporter, ipcMain} = require('electron')
+// Importe le client supabase déjà configuré dans ton projet (ajuste le chemin si nécessaire)
+const { supabase } = require('./src/services/supabase.js')
 const path = require('path')
 require('./src/main/ipc.js')
 
-// 🎯 Déclarations globales (Recommandé par la doc Tray pour éviter le Garbage Collection)
+crashReporter.start({
+  productName: 'Goalife',
+  uploadToServer: false // Indique à Electron de stocker les rapports localement sans les envoyer
+  // Note : submitURL n'est pas nécessaire ici car uploadToServer est à false.
+})
+
+// Fonction de collecte pour envoyer le crash vers Supabase
+async function logCrashToSupabase(error) {
+  try {
+    // Récupérer l'ID de l'utilisateur actuellement connecté si disponible
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    await supabase
+      .from('app_crashes')
+      .insert([
+        {
+          user_id: user ? user.id : null,
+          error_message: error.message || 'Crash/Erreur inconnu',
+          error_stack: error.stack || 'Pas de stack trace disponible',
+          process_type: 'main'
+        }
+      ])
+  } catch (supabaseErr) {
+    console.error("Échec de l'envoi du log à Supabase:", supabaseErr)
+  }
+}
+
+// Intercepter les crashs non gérés du processus Main (Backend)
+process.on('uncaughtException', async (error) => {
+  console.error('Crash détecté (Main Process) :', error)
+  await logCrashToSupabase(error)
+  app.quit()  // Quitter proprement l'application après le crash
+})
+
+// Écouteur IPC pour capter les crashs provenant du processus Renderer (Frontend)
+ipcMain.removeHandler('crash:report-renderer')
+ipcMain.handle('crash:report-renderer', async (event, errorDetails) => {
+  await logCrashToSupabase(errorDetails, 'renderer')
+  return { success: true }
+})
+
+// Déclarations globales (Recommandé par la doc Tray pour éviter le Garbage Collection)
 
 let mainWindow
 let tray = null
 
 // On déclare d'ABORD la fonction createWindow pour qu'elle existe à coup sûr globalement
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
@@ -30,7 +73,7 @@ const createWindow = () => {
     mainWindow.show()
   })
 
-// 🎯 GESTION DE LA FERMETURE : Cacher la fenêtre au lieu de quitter l'app
+// GESTION DE LA FERMETURE : Cacher la fenêtre au lieu de quitter l'app
   mainWindow.on('close', (event) => {
     if (!app.isQuitting) {
       event.preventDefault()
@@ -55,6 +98,9 @@ const createWindow = () => {
 // Initialisation de l'application
 app.whenReady().then(() => {
 
+  // 🔴 LIGNE DE TEST CRASH REPORTER: Force un crash au démarrage
+  // throw new Error("Test de crash automatique pour le rendu Goalife !");
+
   // Définir l'ID pour Windows AVANT de créer la fenêtre
   app.setAppUserModelId('com.goalife.app')
 
@@ -77,7 +123,8 @@ app.whenReady().then(() => {
     { 
       label: 'Quitter', 
       click: () => {
-        app.isQuitting = true 
+        app.isQuitting = true
+        app.quit() 
     }
 }])
 

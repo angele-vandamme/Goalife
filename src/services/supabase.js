@@ -1,14 +1,23 @@
 const { createClient } = require('@supabase/supabase-js')
 
-// Nettoyage de l'URL : on enlève '/rest/v1/' à la fin
+// Support WebSocket pour Electron (Node.js 18)
+let WebSocketClass = null
+try {
+  WebSocketClass = require('ws')
+} catch (e) {
+  console.warn('ws package not available, WebSocket support disabled')
+}
+
 const SUPABASE_URL = 'https://mbynbgnkwwyrsmhmeldv.supabase.co'
 const SUPABASE_KEY = 'sb_publishable_ar0Sh4RFtZSnJIOMMiWxng_X1rEtzUo'
 
 let supabase = null
 
 try {
-  // Initialisation sécurisée du client Supabase
-  supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+  // Initialisation du client Supabase V2 avec support WebSocket
+  const options = WebSocketClass ? { realtime: { transport: 'ws' } } : {}
+  supabase = createClient(SUPABASE_URL, SUPABASE_KEY, options)
+  console.log('Supabase client initialized successfully')
 } catch (error) {
   console.error("Erreur critique lors de l'initialisation de Supabase :", error.message)
 }

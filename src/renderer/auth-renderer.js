@@ -53,21 +53,21 @@ registerForm.addEventListener('submit', async (e) => {
   const email = document.getElementById('reg-email').value;
   const password = document.getElementById('reg-password').value;
 
-  // Appel de la fonction d'inscription exposée par preload.js
+  // ✅ Validation mot de passe
+  if (password.length < 6) {
+    showError("Le mot de passe doit contenir au moins 6 caractères.");
+    return;
+  }
+
   const result = await window.api.signUp(email, password, prenom, nom);
 
   if (result.error) {
     showError("Échec de l'inscription : " + result.error.message);
   } else {
-    // Réinitialiser le formulaire d'inscription
     registerForm.reset();
-    
-    // Basculer manuellement vers le formulaire de connexion
     registerForm.classList.add('hidden');
     loginForm.classList.remove('hidden');
     errorTxt.style.display = 'none';
-    
-    // Pré-remplir l'email pour faciliter la connexion
     document.getElementById('login-email').value = email;
   }
 });

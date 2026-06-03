@@ -6,7 +6,7 @@ window.navigate = function(page) {
     'accueil':       'dashboard.html',
     'compte':          'compte.html',
     'nouvel-objectif': 'nouvel-objectif.html',
-    'objective-pro':   'objectifs.html?type=professionnel',
+    'objectif-pro':   'objectifs.html?type=professionnel',
     'objectif-perso':  'objectifs.html?type=personnel',
     'parametres':      'parametres.html',
     'a-propos': 'a-propos.html'

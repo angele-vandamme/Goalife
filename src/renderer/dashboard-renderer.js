@@ -18,22 +18,21 @@ window.navigate = function(page) {
     // Chargement des données Supabase via IPC
     async function loadDashboard() {
       try {
-        // Nom de l'utilisateur
-        const user = await window.api.getUser();
-        if (user) {
-          const profile = await window.api.getUserProfile();
-          if (profile) {
-            document.getElementById('user-name').textContent =
-              `${profile.data.prenom ?? ''} ${profile.data.nom ?? ''}`.trim() || user.email;
-          }
-        }
-
-        // Après avoir récupéré le profile via l'IPC :
+        // Récupérer et afficher le profil utilisateur
         const profile = await window.api.getUserProfile();
-        if (profile && profile.data) {
-            // On sauvegarde les chaînes de texte dans le cache de la session
-            sessionStorage.setItem('user_prenom', profile.data.prenom || 'Utilisateur');
-            sessionStorage.setItem('user_nom', profile.data.nom || '');
+        if (profile?.data) {
+          const prenom = profile.data.prenom || 'Utilisateur';
+          const nom = profile.data.nom || '';
+          document.getElementById('user-name').textContent = `${prenom} ${nom}`.trim();
+          sessionStorage.setItem('user_prenom', prenom);
+          sessionStorage.setItem('user_nom', nom);
+        } else {
+          // Fallback si pas de profil
+          const user = await window.api.getUser();
+          const email = user?.email || 'Utilisateur';
+          document.getElementById('user-name').textContent = email;
+          sessionStorage.setItem('user_prenom', email);
+          sessionStorage.setItem('user_nom', '');
         }
  
         // Objectifs

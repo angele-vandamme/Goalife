@@ -6,7 +6,7 @@ window.navigate = function(page) {
     'accueil':       'dashboard.html',
     'compte':          'compte.html',
     'nouvel-objectif': 'nouvel-objectif.html',
-    'objective-pro':   'objectifs.html?type=professionnel',
+    'objectif-pro':   'objectifs.html?type=professionnel',
     'objectif-perso':  'objectifs.html?type=personnel',
     'parametres':      'parametres.html',
     'a-propos': 'a-propos.html'
@@ -21,8 +21,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Charger le prénom pour la sidebar
   try {
     const profile = await window.api.getUserProfile();
-    if (profile && profile.data) {
-      document.getElementById('sidebar-prenom').textContent = profile.data.prenom || 'Utilisateur';
+    if (profile?.data?.prenom) {
+      document.getElementById('user-name').textContent = profile.data.prenom;
     }
   } catch (err) {
     console.error("Erreur sidebar paramètres:", err);
