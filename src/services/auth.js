@@ -28,13 +28,14 @@ async function signUp(email, password, prenom, nom) {
 
       if (profileError) {
         console.error("Erreur lors de la création auto du profil :", profileError.message)
+        return { data, error: profileError }
       }
     }
 
-    return data
+    return { data, error: null }
   } catch (err) {
     console.error("Erreur signUp service:", err.message)
-    throw err
+    return { data: null, error: err }
   }
 }
 
