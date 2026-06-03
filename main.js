@@ -1,4 +1,4 @@
-const { app, shell, BrowserWindow, Tray, Menu, crashReporter} = require('electron')
+const { app, shell, BrowserWindow, Tray, Menu, crashReporter, ipcMain} = require('electron')
 // Importe le client supabase déjà configuré dans ton projet (ajuste le chemin si nécessaire)
 const { supabase } = require('./src/services/supabase.js')
 const path = require('path')
@@ -97,6 +97,9 @@ const createWindow = () => {
 
 // Initialisation de l'application
 app.whenReady().then(() => {
+
+  // 🔴 LIGNE DE TEST CRASH REPORTER: Force un crash au démarrage
+  // throw new Error("Test de crash automatique pour le rendu Goalife !");
 
   // Définir l'ID pour Windows AVANT de créer la fenêtre
   app.setAppUserModelId('com.goalife.app')

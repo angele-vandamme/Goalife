@@ -1,11 +1,43 @@
 "use strict";
-const { app, shell, BrowserWindow, Tray, Menu } = require("electron");
+const { app, shell, BrowserWindow, Tray, Menu, crashReporter, ipcMain } = require("electron");
+const { supabase } = require("./src/services/supabase.js");
 const path = require("path");
 require("./src/main/ipc.js");
+crashReporter.start({
+  productName: "Goalife",
+  uploadToServer: false
+  // Indique à Electron de stocker les rapports localement sans les envoyer
+  // Note : submitURL n'est pas nécessaire ici car uploadToServer est à false.
+});
+async function logCrashToSupabase(error) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from("app_crashes").insert([
+      {
+        user_id: user ? user.id : null,
+        error_message: error.message || "Crash/Erreur inconnu",
+        error_stack: error.stack || "Pas de stack trace disponible",
+        process_type: "main"
+      }
+    ]);
+  } catch (supabaseErr) {
+    console.error("Échec de l'envoi du log à Supabase:", supabaseErr);
+  }
+}
+process.on("uncaughtException", async (error) => {
+  console.error("Crash détecté (Main Process) :", error);
+  await logCrashToSupabase(error);
+  app.quit();
+});
+ipcMain.removeHandler("crash:report-renderer");
+ipcMain.handle("crash:report-renderer", async (event, errorDetails) => {
+  await logCrashToSupabase(errorDetails);
+  return { success: true };
+});
 let mainWindow;
 let tray = null;
 const createWindow = () => {
-  const mainWindow2 = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
@@ -18,24 +50,24 @@ const createWindow = () => {
       contextIsolation: true
     }
   });
-  mainWindow2.on("ready-to-show", () => {
-    mainWindow2.show();
+  mainWindow.on("ready-to-show", () => {
+    mainWindow.show();
   });
-  mainWindow2.on("close", (event) => {
+  mainWindow.on("close", (event) => {
     if (!app.isQuitting) {
       event.preventDefault();
-      mainWindow2.hide();
+      mainWindow.hide();
     }
     return false;
   });
-  mainWindow2.webContents.setWindowOpenHandler((details) => {
+  mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url);
     return { action: "deny" };
   });
   if (process.env.ELECTRON_RENDERER_URL) {
-    mainWindow2.loadURL(`${process.env.ELECTRON_RENDERER_URL}/pages/auth.html`);
+    mainWindow.loadURL(`${process.env.ELECTRON_RENDERER_URL}/pages/auth.html`);
   } else {
-    mainWindow2.loadFile(path.join(__dirname, "src/renderer/pages/auth.html"));
+    mainWindow.loadFile(path.join(__dirname, "src/renderer/pages/auth.html"));
   }
 };
 app.whenReady().then(() => {
@@ -55,6 +87,7 @@ app.whenReady().then(() => {
       label: "Quitter",
       click: () => {
         app.isQuitting = true;
+        app.quit();
       }
     }
   ]);
