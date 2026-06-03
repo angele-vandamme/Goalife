@@ -1,7 +1,7 @@
 :root {
-  --bg-mint: #7FFFD4;
-  --card-purple: #C9B8E8;
-  --btn-purple: #7B5EA7;
+  --bg-mint: #7FFFD4;      
+  --card-purple: #C3B1E8; 
+  --btn-purple: #6B4FA0;
   --white: #ffffff;
   --link-green: #2EAF7D;
   --text-dark: #1a1a1a;
@@ -26,7 +26,7 @@ body {
 
 h1 {
   font-family: 'Brush Script MT', cursive;
-  font-size: 3.5rem;
+  font-size: 4.5rem;   /* était 3.5rem */
   color: var(--text-dark);
   margin: 0 0 10px 0;
   text-align: center;
