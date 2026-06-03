@@ -155,15 +155,19 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    position: relative; /* 1. Donne un repère spatial à chaque groupe */
 }
 
+/* S'applique à tous les labels de l'application */
 .form-group label {
     font-size: 14px;
     font-weight: 600;
     color: white;
+    /* 2. Rend le label "transparent" aux clics sur TOUTE l'application */
+    pointer-events: none; 
 }
 
-/* Inputs, Selects et Textarea */
+/* S'applique à tous tes inputs, selects et textareas */
 .input-field {
     background: white;
     color: #333;
@@ -175,6 +179,12 @@ body {
     width: 100%;
     outline: none;
     transition: border-color 0.2s;
+
+    /* Force chaque champ à créer sa propre couche graphique */
+    position: relative;
+    z-index: 1;
+    /* 4. Réactive explicitement le clic sur l'input (car le parent label a pointer-events: none) */
+    pointer-events: auto; 
 }
 
 .input-field:focus {
