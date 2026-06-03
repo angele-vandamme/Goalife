@@ -1,58 +1,76 @@
-let objectifId = null;
+window.navigate = function(page) {
+  const routes = {
+    'accueil':         'dashboard.html',
+    'compte':          'compte.html',
+    'nouvel-objectif': 'nouvel-objectif.html',
+    'objectif-pro':    'objectifs.html?type=professionnel',
+    'objectif-perso':  'objectifs.html?type=personnel',
+    'parametres':      'parametres.html',
+    'a-propos':        'a-propos.html'
+  };
+  if (routes[page]) window.location.href = routes[page];
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
+
   const params = new URLSearchParams(window.location.search);
-  objectifId = params.get('id');
+  const objectifId = params.get('id');
 
   if (!objectifId) {
     window.location.href = 'dashboard.html';
     return;
   }
 
-  // Pré-remplir
+  // Pré-remplir les champs
   try {
     const result = await window.api.getObjectifs();
     if (result && result.data) {
-      const updates = result.data.find(o => o.id === parseInt(objectifId) || o.id === objectifId);
-      if (updates) {
-        document.getElementById('input-nom').value = updates.nom || '';
-        document.getElementById('select-statut').value = updates.statut || 'en cours';
-        document.getElementById('select-duree').value = updates.duree || 'court_terme';
-        document.getElementById('select-type').value = updates.type || 'professionnel';
-        document.getElementById('select-importance').value = updates.importance || 'moyenne';
-        document.getElementById('input-description').value = updates.description || '';
+      const o = result.data.find(o => o.id === objectifId || o.id === parseInt(objectifId));
+      if (o) {
+        document.getElementById('input-nom').value         = o.nom || '';
+        document.getElementById('select-statut').value     = o.statut || 'en cours';
+        document.getElementById('select-duree').value      = o.duree || 'court terme';
+        document.getElementById('select-type').value       = o.type || 'professionnel';
+        document.getElementById('select-importance').value = o.importance || 'moyenne';
+        document.getElementById('input-description').value = o.description || '';
       }
     }
-  } catch (err) { console.error(err); }
+  
+  } catch (err) {
+    console.error('Erreur pré-remplissage:', err);
+  }
 
-  // Actions
+  // Modifier
   document.getElementById('form-modifier-objectif').addEventListener('submit', async (e) => {
     e.preventDefault();
     const updated = {
-      id: objectifId,
-      nom: document.getElementById('input-nom').value,
-      statut: document.getElementById('select-statut').value,
-      duree: document.getElementById('select-duree').value,
-      type: document.getElementById('select-type').value,
-      importance: document.getElementById('select-importance').value,
+      id:          objectifId,
+      nom:         document.getElementById('input-nom').value,
+      statut:      document.getElementById('select-statut').value,
+      duree:       document.getElementById('select-duree').value,
+      type:        document.getElementById('select-type').value,
+      importance:  document.getElementById('select-importance').value,
       description: document.getElementById('input-description').value
     };
+    console.log('updated:', JSON.stringify(updated)); // debug temporaire
     const res = await window.api.updateObjectif(updated);
     if (res.success) {
-      alert("Objectif modifié !");
-      window.location.href = 'dashboard.html';
-    } else { alert("Erreur : " + res.error); }
+      await window.api.sendNotification('Goalife ✏️', `L'objectif "${updated.nom}" a été modifié !`);
+      history.back();
+    } else {
+      alert('Erreur : ' + res.error);
+    }
   });
 
+  // Supprimer
   document.getElementById('btn-supprimer').addEventListener('click', async () => {
-    if (confirm("Supprimer cet objectif ?")) {
+    if (confirm('Supprimer cet objectif ?')) {
       const res = await window.api.deleteObjectif(objectifId);
       if (res.success) {
-        alert("Objectif supprimé !");
+        await window.api.sendNotification('Goalife 🗑️', `Objectif supprimé avec succès.`);
         window.location.href = 'dashboard.html';
       }
     }
   });
-});
 
-function annuler() { window.location.href = 'dashboard.html'; }
+});

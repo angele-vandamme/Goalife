@@ -75,11 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (result && result.success) {
           // 💡 FONCTIONNALITÉ NATIVE OS : Notification système
-          if (Notification.permission === "granted" || Notification.permission === "default") {
-            new Notification("Goalife 🎯", {
-              body: `L'objectif "${objectifData.nom}" a bien été créé !`
-            });
-          }
+          await window.api.sendNotification('Goalife 🎯', `L'objectif "${objectifData.nom}" a bien été créé !`);
           // Retour automatique au Dashboard
           window.location.href = 'dashboard.html';
         } else {

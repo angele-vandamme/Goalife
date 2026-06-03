@@ -1,4 +1,4 @@
-const { ipcMain, dialog } = require('electron')
+const { ipcMain, dialog, Notification, app } = require('electron')
 const { signUp, signIn, signOut, getUser } = require('../services/auth')
 const { getObjectifs, createObjectif, updateObjectif, deleteObjectif } = require('../services/goals')
 const { supabase } = require('../services/supabase')
@@ -99,20 +99,20 @@ ipcMain.handle('goals:create', async (event, goal) => {
 ipcMain.removeHandler('goals:update');
 ipcMain.handle('goals:update', async (event, updates) => {
   try {
-    const { data, error } = await supabase
+    const { id, ...fields } = updates;
+    console.log('=== goals:update ===');
+    console.log('id:', id);
+    console.log('fields:', fields);
+    const { error, data } = await supabase
       .from('objectif')
-      .update({
-        nom: updates.nom,
-        statut: updates.statut,
-        duree: updates.duree,
-        type: updates.type,
-        importance: updates.importance,
-        description: updates.description
-      })
-      .eq('id', updates.id);
+      .update(fields)
+      .eq('id', id);
+    console.log('supabase error:', error);
+    console.log('supabase data:', data);
     if (error) throw error;
     return { success: true };
   } catch (error) {
+    console.error('Erreur IPC updateObjectif:', error.message);
     return { success: false, error: error.message };
   }
 });
@@ -133,9 +133,9 @@ ipcMain.handle('goals:delete', async (event, id) => {
 });
 
 // =========================================================================
-// Écouteur pour l'Image (Sécurisé également)
+// Écouteur pour l'Image
 // =========================================================================
-ipcMain.removeHandler('image:select'); // 🎯 Sécurité doublon
+ipcMain.removeHandler('image:select');
 ipcMain.handle('image:select', async () => {
   try {
     const result = await dialog.showOpenDialog({
@@ -154,4 +154,45 @@ ipcMain.handle('image:select', async () => {
     console.error("Erreur IPC selectImage:", error.message)
     return null
   }
+})
+
+// =========================================================================
+// Notifications système natives
+// =========================================================================
+ipcMain.handle('notification:send', (event, { title, body }) => {
+  new Notification({ title, body }).show()
+})
+
+// =========================================================================
+// Paramètres système
+// =========================================================================
+// Export JSON 
+ipcMain.removeHandler('goals:export')
+ipcMain.handle('goals:export', async (event, data) => {
+  try {
+    const { filePath, canceled } = await dialog.showSaveDialog({
+      title: 'Exporter mes objectifs',
+      defaultPath: 'goalife-export.json',
+      filters: [{ name: 'JSON', extensions: ['json'] }]
+    })
+    if (canceled || !filePath) return { success: false }
+    const fs = require('fs')
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8')
+    return { success: true }
+  } catch (error) {
+    console.error('Erreur export JSON:', error.message)
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.removeHandler('settings:setAutoLaunch')
+ipcMain.handle('settings:setAutoLaunch', (event, enabled) => {
+  app.setLoginItemSettings({ openAtLogin: enabled })
+  return { success: true }
+})
+
+ipcMain.removeHandler('settings:getAutoLaunch')
+ipcMain.handle('settings:getAutoLaunch', () => {
+  const { openAtLogin } = app.getLoginItemSettings()
+  return { openAtLogin }
 })

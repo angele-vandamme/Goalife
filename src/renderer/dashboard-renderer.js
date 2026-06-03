@@ -1,12 +1,17 @@
-// Navigation entre pages (adapter selon vos fichiers)
-    function navigate(page) {
-      const routes = {
-        'compte':          'compte.html',
-        'nouvel-objectif': 'nouvel-objectif.html',
-        'objectif-pro':    'objectifs.html?type=professionnel',
-        'objectif-perso':  'objectifs.html?type=personnel',
-        'parametres':      'parametres.html',
-      };
+// =========================================================================
+// SYSTEME DE NAVIGATION 
+// =========================================================================
+window.navigate = function(page) {
+  const routes = {
+    'accueil':       'dashboard.html',
+    'compte':          'compte.html',
+    'nouvel-objectif': 'nouvel-objectif.html',
+    'objectif-pro':   'objectifs.html?type=professionnel',
+    'objectif-perso':  'objectifs.html?type=personnel',
+    'parametres':      'parametres.html',
+    'a-propos': 'a-propos.html'
+  };
+  
       if (routes[page]) window.location.href = routes[page];
     }
  
@@ -21,6 +26,14 @@
             document.getElementById('user-name').textContent =
               `${profile.data.prenom ?? ''} ${profile.data.nom ?? ''}`.trim() || user.email;
           }
+        }
+
+        // Après avoir récupéré le profile via l'IPC :
+        const profile = await window.api.getUserProfile();
+        if (profile && profile.data) {
+            // On sauvegarde les chaînes de texte dans le cache de la session
+            sessionStorage.setItem('user_prenom', profile.data.prenom || 'Utilisateur');
+            sessionStorage.setItem('user_nom', profile.data.nom || '');
         }
  
         // Objectifs

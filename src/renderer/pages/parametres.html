@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Goalife - Paramètres</title>
+  <link rel="stylesheet" href="../css/settings-view.css">
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar" onclick="navigate('a-propos')" style="cursor: pointer;">
+    <span>A propos</span>
+    <div class="info-icon">i</div>
+  </div>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="logo">Goalife</div>
+
+      <button id="btn-dashboard" onclick="navigate('accueil')">Accueil</button>
+      <button id="btn-compte" onclick="navigate('compte')">Compte</button>
+      <button id="btn-nouvel" onclick="navigate('nouvel-objectif')">Nouvel objectif</button>
+      <button id="btn-pro" onclick="navigate('objectif-pro')">Objectif Pro</button>
+      <button id="btn-perso" onclick="navigate('objectif-perso')">Objectif Perso</button>
+
+      <div class="user-name" id="user-name">Prénom</div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      <div class="dashboard-card">
+        <h2>⚙️ Paramètres Système</h2>
+        <p style="opacity: 0.7; margin-bottom: 30px;">Options natives de votre application desktop.</p>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+
+          <div class="settings-card-outline">
+            <h3 style="margin-top: 0; color: #7B5EA7;">💾 Sauvegarde locale (Export JSON)</h3>
+            <p style="font-size: 14px; opacity: 0.8; line-height: 1.5;">
+              Générez une copie de vos objectifs sur votre disque dur local au format <code>.json</code>.
+            </p>
+            <button id="btn-export" class="btn-primary">Exporter mes objectifs</button>
+          </div>
+
+          <div class="settings-card-outline">
+            <h3 style="margin-top: 0; color: #7B5EA7;">🚀 Lancement Automatique</h3>
+            <p style="font-size: 14px; opacity: 0.8; line-height: 1.5;">
+              Lancer Goalife automatiquement à l'ouverture de votre session Windows.
+            </p>
+            <div style="display: flex; align-items: center; gap: 12px; margin-top: 15px;">
+              <input type="checkbox" id="sync-autolaunch" style="transform: scale(1.3); cursor: pointer;">
+              <label for="sync-autolaunch" style="cursor: pointer; font-weight: 500;">Activer le démarrage automatique</label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script src="../parametres-renderer.js"></script>
+</body>
+</html>

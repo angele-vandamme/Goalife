@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Goalife - À propos</title>
+  <link rel="stylesheet" href="../css/settings-view.css">
+</head>
+<body>
+
+  <div class="topbar" onclick="navigate('a-propos')" style="cursor: pointer;">
+    <span>A propos</span>
+    <div class="info-icon">i</div>
+  </div>
+
+  <div class="layout">
+    
+    <aside class="sidebar">
+      <div class="logo">Goalife</div>
+      
+      <button id="btn-dashboard" onclick="navigate('accueil')">Accueil</button>
+      <button id="btn-compte" onclick="navigate('compte')">Compte</button>
+      <button id="btn-nouvel" onclick="navigate('nouvel-objectif')">Nouvel objectif</button>
+      <button id="btn-pro" onclick="navigate('objective-pro')">Objectif Pro</button>
+      <button id="btn-perso" onclick="navigate('objective-perso')">Objectif Perso</button>
+
+      <div class="user-name" id="user-name">Prénom</div>
+      <button onclick="navigate('parametres')">Paramètres</button>
+    </aside>
+    
+    <main class="main">
+      <div class="dashboard-card" style="text-align: center;">
+        <h1 style="color: #7B5EA7; margin-top: 0; font-size: 36px;">🎯 Goalife Application</h1>
+        <p style="font-weight: bold; color: #2EAF7D; margin-bottom: 25px;">Version 1.0.0 (Desktop Native)</p>
+        
+        <p style="line-height: 1.6; font-size: 15px; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">
+          Goalife est un outil de productivité personnel et professionnel conçu spécifiquement pour le bureau, permettant de structurer ses ambitions à court, moyen et long terme à travers un système d'analyse d'objectifs persistant.
+        </p>
+
+        <div style="margin-bottom: 30px;">
+          <span class="tech-badge" style="background: #7B5EA7; color: white; padding: 5px 12px; border-radius: 15px; margin: 0 5px; display: inline-block; font-size: 13px;">Electron Vanilla</span>
+          <span class="tech-badge" style="background: #7B5EA7; color: white; padding: 5px 12px; border-radius: 15px; margin: 0 5px; display: inline-block; font-size: 13px;">JavaScript ES6</span>
+          <span class="tech-badge" style="background: #7B5EA7; color: white; padding: 5px 12px; border-radius: 15px; margin: 0 5px; display: inline-block; font-size: 13px;">Supabase API</span>
+          <span class="tech-badge" style="background: #7B5EA7; color: white; padding: 5px 12px; border-radius: 15px; margin: 0 5px; display: inline-block; font-size: 13px;">PostgreSQL Remote</span>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #2EAF7D; margin-bottom: 25px; opacity: 0.5;">
+        
+        <p style="font-size: 13px; opacity: 0.8; margin: 0; line-height: 1.5;">
+          Projet académique réalisé dans le cadre de la validation du module Développement Desktop.<br>
+          <strong>Ynov Campus — Angèle Vandamme.</strong>
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <script src="../apropos-renderer.js"></script>
+</body>
+</html>

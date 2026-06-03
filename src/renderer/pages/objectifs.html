@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Goalife - Objectifs</title>
+  <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="logo">Goalife</div>
+
+      <button id="btn-dashboard" onclick="navigate('accueil')">Accueil</button>
+      <button onclick="navigate('compte')">Compte</button>
+      <button onclick="navigate('nouvel-objectif')">Nouvel objectif</button>
+      <button id="btn-pro"   onclick="navigate('objectif-pro')">Objectif Pro</button>
+      <button id="btn-perso" onclick="navigate('objectif-perso')">Objectif Perso</button>
+
+      <div class="user-name" id="user-name">Prénom</div>
+      <button onclick="navigate('parametres')">Paramètres</button>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <div class="topbar" onclick="navigate('a-propos')" style="cursor: pointer;">
+        <span>A propos</span>
+        <div class="info-icon">i</div>
+      </div>
+
+      <div class="dashboard-card">
+        <h1 id="page-title">Mes objectifs</h1>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Statut</th>
+                <th>Durée</th>
+                <th>Description</th>
+                <th>Importance</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="objectifs-body">
+              <tr><td colspan="6" style="text-align:center; opacity:0.5;">Chargement...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="../objectifs-renderer.js"></script>
+</body>
+</html>

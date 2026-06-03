@@ -9,11 +9,18 @@ contextBridge.exposeInMainWorld('api', {
   getUser: () => ipcRenderer.invoke('auth:getUser'),
   getUserProfile: () => ipcRenderer.invoke('profile:getUserProfile'),
 
+  // Notifications OS
+  sendNotification: (title, body) => ipcRenderer.invoke('notification:send', { title, body }),
+  
+
   // Objectifs
   getObjectifs: () => ipcRenderer.invoke('goals:get'),
   getObjectifsByType: (type) => ipcRenderer.invoke('goals:getByType', type),
   selectImage: () => ipcRenderer.invoke('image:select'),
   createObjectif: (goal) => ipcRenderer.invoke('goals:create', goal),
-  updateObjectif: (id, updates) => ipcRenderer.invoke('goals:update', { id, updates }),
-  deleteObjectif: (id) => ipcRenderer.invoke('goals:delete', id)
+  updateObjectif: (updates) => ipcRenderer.invoke('goals:update', updates),
+  deleteObjectif: (id) => ipcRenderer.invoke('goals:delete', id),
+  exportGoals: (data) => ipcRenderer.invoke('goals:export', data),
+  setAutoLaunch: (enabled) => ipcRenderer.invoke('settings:setAutoLaunch', enabled),
+  getAutoLaunch: () => ipcRenderer.invoke('settings:getAutoLaunch'),
 })
