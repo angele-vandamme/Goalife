@@ -1,59 +1,95 @@
 const { supabase } = require('./supabase')
 
+let currentSession = null
+let currentUser = null
+
+function cacheSession(sessionData) {
+  currentSession = sessionData
+  currentUser = sessionData?.user ?? null
+}
+
 async function signUp(email, password, prenom, nom) {
   try {
-    // 1. On crée le compte dans l'Authentication Supabase
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { prenom, nom } // Sauvegarde aussi dans les métadonnées par sécurité
+        data: { prenom, nom }
       }
     })
 
     if (error) throw error
 
-    // 2. Si le compte est créé, on insère DIRECTEMENT la ligne dans ta table 'user'
+    if (data?.session) {
+      cacheSession(data.session)
+    }
+
     if (data && data.user) {
       const { error: profileError } = await supabase
         .from('user')
         .insert([
-          { 
-            id: data.user.id, // On reprend l'ID identique de l'authentification
-            prenom: prenom, 
-            nom: nom, 
-            email: email 
+          {
+            id: data.user.id,
+            prenom,
+            nom,
+            email
           }
         ])
 
       if (profileError) {
-        console.error("Erreur lors de la création auto du profil :", profileError.message)
+        console.error('Erreur lors de la création auto du profil :', profileError.message)
       }
     }
 
     return data
   } catch (err) {
-    console.error("Erreur signUp service:", err.message)
+    console.error('Erreur signUp service:', err.message)
     throw err
   }
 }
 
-  async function signIn(email, password) {
+async function signIn(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) {
+    return { data, error }
+  }
+
+  if (data?.session) {
+    cacheSession(data.session)
+  }
+
   return { data, error }
 }
 
-  async function signOut() {
+async function signOut() {
   const { error } = await supabase.auth.signOut()
+  currentSession = null
+  currentUser = null
   return { error }
 }
-    
-  async function getUser() {
+
+async function getUser() {
+  if (currentUser) {
+    return currentUser
+  }
+
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+  if (sessionError) {
+    console.error('Erreur getSession service:', sessionError.message)
+  }
+
+  if (sessionData?.session) {
+    cacheSession(sessionData.session)
+    return currentUser
+  }
+
   const { data, error } = await supabase.auth.getUser()
   if (error) {
     console.error('Erreur getUser service:', error.message)
     return null
   }
+
+  cacheSession(data?.user ? { user: data.user } : null)
   return data?.user ?? null
 }
 

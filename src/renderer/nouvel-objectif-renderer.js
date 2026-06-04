@@ -59,16 +59,32 @@ function initNouvelObjectifPage() {
   // Gestion de la soumission du formulaire
   const form = document.getElementById('form-nouvel-objectif');
   if (form) {
+    const formMessage = document.getElementById('form-message');
+
+    function showFormMessage(message, isError = true) {
+      if (!formMessage) {
+        if (isError) alert(message)
+        return
+      }
+      formMessage.textContent = message
+      formMessage.style.color = isError ? '#d32f2f' : '#1b5e20'
+      formMessage.style.padding = '10px 12px'
+      formMessage.style.border = isError ? '1px solid #d32f2f' : '1px solid #1b5e20'
+      formMessage.style.borderRadius = '6px'
+      formMessage.style.marginBottom = '16px'
+      formMessage.style.backgroundColor = isError ? 'rgba(211,47,47,0.08)' : 'rgba(27,94,32,0.08)'
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (formMessage) formMessage.textContent = '';
 
       const currentUser = await window.api.getUser();
       if (!currentUser) {
-        alert("Veuillez vous connecter pour créer un objectif.");
+        showFormMessage('Veuillez vous connecter pour créer un objectif.');
         return;
       }
 
-      // Récupération des éléments à afficher
       const objectifData = {
         nom: document.getElementById('input-nom').value.trim(),
         statut: document.getElementById('select-statut').value,
@@ -80,7 +96,7 @@ function initNouvelObjectifPage() {
       };
 
       if (!objectifData.nom || !objectifData.description) {
-        alert('Veuillez renseigner le nom et la description de l\'objectif.')
+        showFormMessage('Veuillez renseigner le nom et la description de l\'objectif.')
         return
       }
 
@@ -89,6 +105,7 @@ function initNouvelObjectifPage() {
         console.log('createObjectif result:', result)
 
         if (result && result.success) {
+          showFormMessage(`Objectif "${objectifData.nom}" créé avec succès !`, false)
           try {
             await window.api.sendNotification('Goalife 🎯', `L'objectif "${objectifData.nom}" a bien été créé !`);
           } catch (notifyError) {
@@ -96,11 +113,12 @@ function initNouvelObjectifPage() {
           }
           window.location.href = 'dashboard.html';
         } else {
-          alert("Erreur Supabase : " + (result.error || "Impossible d'insérer l'objectif."));
+          const errorText = result?.error || 'Impossible d\'insérer l\'objectif.'
+          showFormMessage(`Erreur création : ${errorText}`)
         }
       } catch (error) {
-        console.error("Erreur soumission formulaire :", error);
-        alert("Une erreur technique est survenue.");
+        console.error('Erreur soumission formulaire :', error)
+        showFormMessage('Une erreur technique est survenue. Vérifiez la console ou les logs.')
       }
     });
   }

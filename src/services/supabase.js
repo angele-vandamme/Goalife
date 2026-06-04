@@ -14,8 +14,14 @@ const SUPABASE_KEY = 'sb_publishable_ar0Sh4RFtZSnJIOMMiWxng_X1rEtzUo'
 let supabase = null
 
 try {
-  // Initialisation du client Supabase V2 avec support WebSocket
-  const options = WebSocketClass ? { realtime: { transport: 'ws' } } : {}
+  // Initialisation du client Supabase V2 avec support WebSocket et Node/Electron auth mode
+  const options = {
+    realtime: WebSocketClass ? { transport: 'ws' } : undefined,
+    auth: {
+      persistSession: false
+    }
+  }
+
   supabase = createClient(SUPABASE_URL, SUPABASE_KEY, options)
   console.log('Supabase client initialized successfully')
 } catch (error) {
