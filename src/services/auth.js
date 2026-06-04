@@ -1,72 +1,105 @@
 const { supabase } = require('./supabase')
 
+let currentSession = null
+let currentUser = null
+
+function cacheSession(sessionData) {
+  currentSession = sessionData
+  currentUser = sessionData?.user ?? null
+}
+
 async function signUp(email, password, prenom, nom) {
   try {
-    // On crée le compte dans l'Authentication Supabase
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { prenom, nom } // Sauvegarde aussi dans les métadonnées par sécurité
+        data: { prenom, nom }
       }
     })
 
-    if (error) throw error
+    if (error) {
+      console.error('Erreur signUp service:', error.message)
+      return { data: null, error }
+    }
 
-    // Si le compte est créé, on insère DIRECTEMENT la ligne dans ta table 'user'
+    if (data?.session) {
+      cacheSession(data.session)
+    }
+
     if (data && data.user) {
       const { error: profileError } = await supabase
         .from('user')
-        .insert([
-          { 
-            id: data.user.id, // On reprend l'ID identique de l'authentification
-            prenom: prenom, 
-            nom: nom, 
-            email: email 
+        .upsert([
+          {
+            id: data.user.id,
+            prenom,
+            nom,
+            email
           }
-        ])
+        ], {
+          onConflict: 'id'
+        })
 
       if (profileError) {
-        console.error("Erreur lors de la création auto du profil :", profileError.message)
-        return { data, error: profileError }
+        if (profileError.code === '23505' || profileError.message?.includes('duplicate key')) {
+          console.warn('Profil existant déjà, création auto ignorée.')
+        } else {
+          console.error('Erreur lors de la création auto du profil :', profileError.message)
+        }
       }
-
-      // CONNEXION AUTOMATIQUE 
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-
-      if (signInError) {
-        console.error("Erreur lors de la connexion automatique :", signInError.message)
-        return { data: null, error: signInError }
-      }
-
-      // On retourne les données de la session fraîchement connectée !
-      return { data: signInData, error: null }
     }
 
     return { data, error: null }
-    
   } catch (err) {
-    console.error("Erreur signUp service:", err.message)
+    console.error('Erreur signUp service:', err.message)
     return { data: null, error: err }
   }
 }
 
 async function signIn(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) {
+    return { data, error }
+  }
+
+  if (data?.session) {
+    cacheSession(data.session)
+  }
+
   return { data, error }
 }
 
 async function signOut() {
   const { error } = await supabase.auth.signOut()
+  currentSession = null
+  currentUser = null
   return { error }
 }
-    
+
 async function getUser() {
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
+  if (currentUser) {
+    return currentUser
+  }
+
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+  if (sessionError) {
+    console.error('Erreur getSession service:', sessionError.message)
+  }
+
+  if (sessionData?.session) {
+    cacheSession(sessionData.session)
+    return currentUser
+  }
+
+  const { data, error } = await supabase.auth.getUser()
+  if (error) {
+    console.error('Erreur getUser service:', error.message)
+    return null
+  }
+
+  cacheSession(data?.user ? { user: data.user } : null)
+  return data?.user ?? null
 }
 
 module.exports = { signUp, signIn, signOut, getUser }

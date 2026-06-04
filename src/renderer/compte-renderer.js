@@ -17,6 +17,7 @@ window.navigate = function(page) {
   }
 };
 document.addEventListener('DOMContentLoaded', () => {
+  window.focus()
   // 1. On pioche directement dans le stockage local de la session
   const cachedPrenom = sessionStorage.getItem('user_prenom') || 'Utilisateur';
   const cachedNom = sessionStorage.getItem('user_nom') || '';

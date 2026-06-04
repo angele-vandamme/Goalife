@@ -1,8 +1,26 @@
 "use strict";
 const { app, shell, BrowserWindow, Tray, Menu, crashReporter, ipcMain } = require("electron");
+app.disableHardwareAcceleration();
 const { supabase } = require("./src/services/supabase.js");
 const path = require("path");
+const fs = require("fs");
 require("./src/main/ipc.js");
+function getAppIconPath() {
+  const candidates = [
+    path.join(__dirname, "src", "assets", "logo-goalife.ico"),
+    path.join(__dirname, "..", "src", "assets", "logo-goalife.ico"),
+    path.join(__dirname, "..", "..", "src", "assets", "logo-goalife.ico"),
+    path.join(process.cwd(), "src", "assets", "logo-goalife.ico")
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  const fallback = candidates[candidates.length - 1];
+  console.warn(`Aucune icône trouvée. Chemin par défaut utilisé : ${fallback}`);
+  return fallback;
+}
 crashReporter.start({
   productName: "Goalife",
   uploadToServer: false
@@ -42,7 +60,7 @@ const createWindow = () => {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    icon: path.join(__dirname, "src", "assets", "logo-goalife.ico"),
+    icon: getAppIconPath(),
     webPreferences: {
       preload: path.join(__dirname, "src/main/preload.js"),
       sandbox: false,
@@ -51,7 +69,35 @@ const createWindow = () => {
     }
   });
   mainWindow.on("ready-to-show", () => {
+    mainWindow.setFocusable(true);
     mainWindow.show();
+    mainWindow.focus();
+    mainWindow.moveTop();
+  });
+  mainWindow.webContents.on("did-finish-load", () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.setFocusable(true);
+      mainWindow.focus();
+      mainWindow.moveTop();
+      mainWindow.webContents.focus();
+      setTimeout(() => {
+        if (!mainWindow.isDestroyed()) {
+          mainWindow.focus();
+          mainWindow.webContents.focus();
+        }
+      }, 100);
+    }
+  });
+  mainWindow.on("show", () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.focus();
+      mainWindow.webContents.focus();
+    }
+  });
+  mainWindow.on("focus", () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.webContents.focus();
+    }
   });
   mainWindow.on("close", (event) => {
     if (!app.isQuitting) {
@@ -73,7 +119,7 @@ const createWindow = () => {
 app.whenReady().then(() => {
   app.setAppUserModelId("com.goalife.app");
   createWindow();
-  const iconPath = path.join(__dirname, "src", "assets", "logo-goalife.ico");
+  const iconPath = getAppIconPath();
   tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -95,12 +141,14 @@ app.whenReady().then(() => {
   tray.setContextMenu(contextMenu);
   tray.on("click", () => {
     mainWindow.show();
+    mainWindow.focus();
   });
   tray.on("right-click", () => {
     tray.popUpContextMenu(contextMenu);
   });
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    else if (mainWindow) mainWindow.focus();
   });
 }).catch((err) => {
   console.error("Erreur lors du démarrage d'Electron :", err);

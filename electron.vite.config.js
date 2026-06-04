@@ -1,6 +1,14 @@
 const { defineConfig } = require('electron-vite')
-const react = require('@vitejs/plugin-react').default
 const path = require('path')
+const fs = require('fs')
+
+const pagesDir = path.resolve(__dirname, 'src/renderer/pages')
+const rendererInputs = fs.readdirSync(pagesDir)
+  .filter(file => file.endsWith('.html'))
+  .reduce((inputs, file) => {
+    inputs[file.replace(/\.html$/, '')] = path.join(pagesDir, file)
+    return inputs
+  }, {})
 
 module.exports = defineConfig({
   main: {
@@ -23,11 +31,8 @@ module.exports = defineConfig({
     root: 'src/renderer',
     build: {
       rollupOptions: {
-        input: {
-          index: path.resolve(__dirname, 'src/renderer/pages/auth.html')
-        }
+        input: rendererInputs
       }
-    },
-    plugins: [react()]
+    }
   }
 })

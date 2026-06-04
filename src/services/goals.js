@@ -20,10 +20,24 @@ async function getObjectifsByType(type) {
 }
 
 // Créer un objectif
-async function createObjectif({ nom, statut, duree, type, importance }) {
+async function createObjectif({ user_id, nom, statut, duree, type, importance, description, image }) {
+  const insertPayload = {
+    user_id,
+    nom,
+    statut,
+    duree,
+    type,
+    importance,
+    description
+  }
+
+  if (image) {
+    insertPayload.image = image
+  }
+
   const { data, error } = await supabase
     .from('objectif')
-    .insert({ nom, statut, duree, type, importance })
+    .insert([insertPayload])
     .select()
   return { data, error }
 }

@@ -4,6 +4,8 @@ const toRegisterBtn = document.getElementById('to-register');
 const toLoginBtn = document.getElementById('to-login');
 const errorTxt = document.getElementById('error-txt');
 
+window.focus()
+
 // Basculer vers l'inscription
 toRegisterBtn.addEventListener('click', () => {
   loginForm.classList.add('hidden');
@@ -59,15 +61,19 @@ registerForm.addEventListener('submit', async (e) => {
     return;
   }
 
-  const result = await window.api.signUp(email, password, prenom, nom);
+  try {
+    const result = await window.api.signUp(email, password, prenom, nom);
 
-  if (result.error) {
-    showError("Échec de l'inscription : " + result.error.message);
-  } else {
-    registerForm.reset();
-    registerForm.classList.add('hidden');
-    loginForm.classList.remove('hidden');
-    errorTxt.style.display = 'none';
-    document.getElementById('login-email').value = email;
+    if (result?.error) {
+      showError("Échec de l'inscription : " + result.error.message);
+    } else {
+      registerForm.reset();
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      errorTxt.style.display = 'none';
+      document.getElementById('login-email').value = email;
+    }
+  } catch (err) {
+    showError("Échec de l'inscription : " + (err.message || 'Erreur inconnue'));
   }
 });

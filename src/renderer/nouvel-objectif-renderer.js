@@ -18,32 +18,49 @@ function annuler() {
   window.location.href = 'dashboard.html';
 }
 
-// Fonction principale qui contient TOUT ton code d'initialisation
-async function initialiserPage() {
-  // 1. Afficher le prénom de l'utilisateur connecté dans la sidebar
-  try {
-      const profile = await window.api.getUserProfile();
+function initNouvelObjectifPage() {
+  document.body.style.pointerEvents = 'auto';
+  document.body.style.userSelect = 'auto';
+  document.body.style.opacity = '1';
+
+  const titleInput = document.getElementById('input-nom');
+  if (titleInput) {
+    titleInput.focus();
+  }
+
+  // Profil en arrière-plan, ne bloque plus l'UI
+  window.api.getUserProfile()
+    .then(profile => {
       if (profile?.data?.prenom) {
         document.getElementById('user-name').textContent = profile.data.prenom;
       }
-  } catch (err) {
-      console.error("Erreur chargement profil sidebar:", err);
-  }
+    })
+    .catch(err => console.error("Erreur chargement profil sidebar:", err));
 
-  // 2. Gestion du bouton Importer
+  // Gestion du bouton Importer
   const btnImporter = document.getElementById('btn-importer');
   if (btnImporter) {
     btnImporter.addEventListener('click', async () => {
       console.log("Clic sur le bouton Importer détecté. Appel de l'API...");
       try {
-        const path = await window.api.selectImage();
-        console.log("Chemin reçu de l'API :", path);
+        const result = await window.api.selectImage();
+        console.log("Chemin reçu de l'API :", result);
+        const path = result?.path;
+        const dataUrl = result?.dataUrl;
         
-        if (path) {
+        if (path && dataUrl) {
           cheminImageSelectionnee = path;
           const preview = document.getElementById('image-preview');
           if (preview) {
-            preview.innerHTML = `<img src="${path}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" />`;
+            preview.textContent = '';
+            const imageElement = document.createElement('img');
+            imageElement.alt = 'Aperçu de l\'image';
+            imageElement.src = dataUrl;
+            imageElement.addEventListener('error', () => {
+              console.error('Impossible de charger l\'image :', dataUrl);
+              preview.textContent = 'Aperçu';
+            });
+            preview.appendChild(imageElement);
           }
         }
       } catch (err) {
@@ -54,47 +71,76 @@ async function initialiserPage() {
     console.error("Impossible de trouver l'élément HTML avec l'ID 'btn-importer'");
   }
 
-  // 3. Gestion de la soumission du formulaire
+  // Gestion de la soumission du formulaire
   const form = document.getElementById('form-nouvel-objectif');
   if (form) {
+    const formMessage = document.getElementById('form-message');
+
+    function showFormMessage(message, isError = true) {
+      if (!formMessage) {
+        console.warn(message)
+        return
+      }
+      formMessage.textContent = message
+      formMessage.style.color = isError ? '#d32f2f' : '#1b5e20'
+      formMessage.style.padding = '10px 12px'
+      formMessage.style.border = isError ? '1px solid #d32f2f' : '1px solid #1b5e20'
+      formMessage.style.borderRadius = '6px'
+      formMessage.style.marginBottom = '16px'
+      formMessage.style.backgroundColor = isError ? 'rgba(211,47,47,0.08)' : 'rgba(27,94,32,0.08)'
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (formMessage) formMessage.textContent = '';
 
-      // Récupération des éléments à afficher
+      const currentUser = await window.api.getUser();
+      if (!currentUser) {
+        showFormMessage('Veuillez vous connecter pour créer un objectif.');
+        return;
+      }
+
       const objectifData = {
-          nom: document.getElementById('input-nom').value,
-          statut: document.getElementById('select-statut').value,
-          duree: document.getElementById('select-duree').value, // Court/Moyen/Long terme
-          type: document.getElementById('select-type').value,   // 'professionnel' ou 'personnel'
-          importance: 'moyenne', // On met 'moyenne' par défaut
-          description: document.getElementById('input-description').value,
-          image: cheminImageSelectionnee
+        nom: document.getElementById('input-nom').value.trim(),
+        statut: document.getElementById('select-statut').value.trim() || 'en cours',
+        duree: document.getElementById('select-duree').value.trim(),
+        type: document.getElementById('select-type').value.trim(),
+        importance: document.getElementById('select-importance').value.trim(),
+        description: document.getElementById('input-description').value.trim(),
+        image: cheminImageSelectionnee
       };
 
+      if (!objectifData.nom || !objectifData.description) {
+        showFormMessage('Veuillez renseigner le nom et la description de l\'objectif.')
+        return
+      }
+
       try {
-        const result = await window.api.createObjectif(objectifData);
+        const result = await window.api.createObjectif(objectifData)
+        console.log('createObjectif result:', result)
 
         if (result && result.success) {
-          // 💡 FONCTIONNALITÉ NATIVE OS : Notification système
-          await window.api.sendNotification('Goalife 🎯', `L'objectif "${objectifData.nom}" a bien été créé !`);
-          // Retour automatique au Dashboard
+          showFormMessage(`Objectif "${objectifData.nom}" créé avec succès !`, false)
+          try {
+            await window.api.sendNotification('Goalife 🎯', `L'objectif "${objectifData.nom}" a bien été créé !`);
+          } catch (notifyError) {
+            console.warn('Notification non disponible :', notifyError);
+          }
           window.location.href = 'dashboard.html';
         } else {
-          alert("Erreur Supabase : " + (result.error || "Impossible d'insérer l'objectif."));
+          const errorText = result?.error || 'Impossible d\'insérer l\'objectif.'
+          showFormMessage(`Erreur création : ${errorText}`)
         }
       } catch (error) {
-        console.error("Erreur soumission formulaire :", error);
-        alert("Une erreur technique est survenue.");
+        console.error('Erreur soumission formulaire :', error)
+        showFormMessage('Une erreur technique est survenue. Vérifiez la console ou les logs.')
       }
     });
   }
-} // 👈 La fonction initialiserPage s'arrête bien ICI maintenant.
+}
 
-// 🚨 SÉCURISATION DU CHARGEMENT (Placée tout à fait en dehors)
 if (document.readyState === 'loading') {
-    // Le DOM charge encore, on attend le signal
-    document.addEventListener('DOMContentLoaded', initialiserPage);
+  document.addEventListener('DOMContentLoaded', initNouvelObjectifPage);
 } else {
-    // Le DOM est déjà prêt (cas fréquent en prod), on lance direct !
-    initialiserPage();
+  initNouvelObjectifPage();
 }

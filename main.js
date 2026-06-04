@@ -1,8 +1,29 @@
 const { app, shell, BrowserWindow, Tray, Menu, crashReporter, ipcMain} = require('electron')
+app.disableHardwareAcceleration()
 // Importe le client supabase déjà configuré dans ton projet (ajuste le chemin si nécessaire)
 const { supabase } = require('./src/services/supabase.js')
 const path = require('path')
+const fs = require('fs')
 require('./src/main/ipc.js')
+
+function getAppIconPath() {
+  const candidates = [
+    path.join(__dirname, 'src', 'assets', 'logo-goalife.ico'),
+    path.join(__dirname, '..', 'src', 'assets', 'logo-goalife.ico'),
+    path.join(__dirname, '..', '..', 'src', 'assets', 'logo-goalife.ico'),
+    path.join(process.cwd(), 'src', 'assets', 'logo-goalife.ico')
+  ]
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate
+    }
+  }
+
+  const fallback = candidates[candidates.length - 1]
+  console.warn(`Aucune icône trouvée. Chemin par défaut utilisé : ${fallback}`)
+  return fallback
+}
 
 crashReporter.start({
   productName: 'Goalife',
@@ -57,7 +78,7 @@ const createWindow = () => {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    icon: path.join(__dirname, 'src', 'assets', 'logo-goalife.ico'),
+    icon: getAppIconPath(),
     webPreferences: {
       preload: path.join(__dirname, 'src/main/preload.js'),
       sandbox: false,
@@ -70,7 +91,38 @@ const createWindow = () => {
   //mainWindow.webContents.openDevTools()
 
   mainWindow.on('ready-to-show', () => {
+    mainWindow.setFocusable(true)
     mainWindow.show()
+    mainWindow.focus()
+    mainWindow.moveTop()
+  })
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.setFocusable(true)
+      mainWindow.focus()
+      mainWindow.moveTop()
+      mainWindow.webContents.focus()
+      setTimeout(() => {
+        if (!mainWindow.isDestroyed()) {
+          mainWindow.focus()
+          mainWindow.webContents.focus()
+        }
+      }, 100)
+    }
+  })
+
+  mainWindow.on('show', () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.focus()
+      mainWindow.webContents.focus()
+    }
+  })
+
+  mainWindow.on('focus', () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.webContents.focus()
+    }
   })
 
 // GESTION DE LA FERMETURE : Cacher la fenêtre au lieu de quitter l'app
@@ -107,7 +159,7 @@ app.whenReady().then(() => {
   // Créer la fenêtre principale
   createWindow()
   
-  const iconPath = path.join(__dirname, 'src', 'assets', 'logo-goalife.ico')
+  const iconPath = getAppIconPath()
   tray = new Tray(iconPath)
 
 
@@ -136,6 +188,7 @@ app.whenReady().then(() => {
   // Double-clic ou clic gauche pour restaurer la fenêtre directement
   tray.on('click', () => {
     mainWindow.show()
+    mainWindow.focus()
   })
 
   tray.on('right-click', () => {
@@ -144,6 +197,7 @@ app.whenReady().then(() => {
   
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    else if (mainWindow) mainWindow.focus()
   })
 }).catch(err => {
   console.error("Erreur lors du démarrage d'Electron :", err)

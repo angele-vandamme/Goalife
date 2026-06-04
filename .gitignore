@@ -1,7 +1,7 @@
 node_modules
-package.json
-package-lock.json
 .env
+out/
+dist-installer/
 dist_electron/
 dist/
 *.exe

@@ -83,4 +83,7 @@ async function loadObjectifs() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', loadObjectifs);
+document.addEventListener('DOMContentLoaded', () => {
+  window.focus()
+  loadObjectifs()
+});
