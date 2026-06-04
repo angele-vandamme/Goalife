@@ -70,18 +70,23 @@ function initNouvelObjectifPage() {
 
       // Récupération des éléments à afficher
       const objectifData = {
-        nom: document.getElementById('input-nom').value,
+        nom: document.getElementById('input-nom').value.trim(),
         statut: document.getElementById('select-statut').value,
-        duree: document.getElementById('select-duree').value, // Court/Moyen/Long terme
-        type: document.getElementById('select-type').value,   // 'professionnel' ou 'personnel'
+        duree: document.getElementById('select-duree').value,
+        type: document.getElementById('select-type').value,
         importance: document.getElementById('select-importance').value,
-        description: document.getElementById('input-description').value,
+        description: document.getElementById('input-description').value.trim(),
         image: cheminImageSelectionnee
       };
 
+      if (!objectifData.nom || !objectifData.description) {
+        alert('Veuillez renseigner le nom et la description de l\'objectif.')
+        return
+      }
+
       try {
-        const result = await window.api.createObjectif(objectifData);
-        console.log('createObjectif result:', result);
+        const result = await window.api.createObjectif(objectifData)
+        console.log('createObjectif result:', result)
 
         if (result && result.success) {
           try {

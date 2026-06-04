@@ -3,6 +3,22 @@ const { signUp, signIn, signOut, getUser } = require('../services/auth')
 const { getObjectifs, createObjectif, updateObjectif, deleteObjectif } = require('../services/goals')
 const { supabase } = require('../services/supabase')
 
+async function getAuthenticatedUser() {
+  const { data: { session } = {}, error: sessionError } = await supabase.auth.getSession()
+  if (sessionError) {
+    console.warn('Avertissement Supabase session:', sessionError.message)
+  }
+
+  if (session?.user) {
+    return session.user
+  }
+
+  const { data, error } = await supabase.auth.getUser()
+  if (error) throw error
+  if (!data?.user) throw new Error('Utilisateur non authentifié')
+  return data.user
+}
+
 // =========================================================================
 // Écouteurs pour l'authentification & Profil
 // =========================================================================
@@ -37,10 +53,7 @@ ipcMain.handle('settings:setAutoLaunch', (event, enabled) => {
 ipcMain.removeHandler('profile:getUserProfile')
 ipcMain.handle('profile:getUserProfile', async () => {
   try {
-    // getSession() lit la session locale sans appel réseau
-    const { data: { session }, error: authError } = await supabase.auth.getSession()
-    if (authError || !session) return { data: null }
-    const user = session.user
+    const user = await getAuthenticatedUser()
 
     const { data, error } = await supabase
       .from('user')
@@ -75,10 +88,7 @@ ipcMain.handle('profile:getUserProfile', async () => {
 ipcMain.removeHandler('goals:get')
 ipcMain.handle('goals:get', async () => {
   try {
-    // getSession() lit la session locale sans appel réseau
-    const { data: { session }, error: authError } = await supabase.auth.getSession()
-    if (authError || !session) throw new Error("Utilisateur non authentifié")
-    const user = session.user
+    const user = await getAuthenticatedUser()
 
     const { data, error } = await supabase
       .from('objectif')
@@ -98,10 +108,7 @@ ipcMain.handle('goals:get', async () => {
 ipcMain.removeHandler('goals:getByType')
 ipcMain.handle('goals:getByType', async (event, type) => {
   try {
-    // getSession() lit la session locale sans appel réseau
-    const { data: { session }, error: authError } = await supabase.auth.getSession()
-    if (authError || !session) throw new Error("Utilisateur non authentifié")
-    const user = session.user
+    const user = await getAuthenticatedUser()
 
     const { data, error } = await supabase
       .from('objectif')
@@ -122,35 +129,30 @@ ipcMain.handle('goals:getByType', async (event, type) => {
 ipcMain.removeHandler('goals:create')
 ipcMain.handle('goals:create', async (event, goal) => {
   try {
-    // getSession() lit la session locale sans appel réseau
-    const { data: { session }, error: authError } = await supabase.auth.getSession()
-    if (authError || !session) throw new Error("Utilisateur non connecté")
-    const user = session.user
+    const user = await getAuthenticatedUser()
+
+    if (!goal?.nom?.trim() || !goal?.description?.trim()) {
+      throw new Error('Veuillez renseigner le nom et la description de l\'objectif.')
+    }
 
     const insertPayload = {
       user_id:     user.id,
-      nom:         goal.nom,
+      nom:         goal.nom.trim(),
       statut:      goal.statut,
       duree:       goal.duree,
       type:        goal.type,
       importance:  goal.importance,
-      description: goal.description
+      description: goal.description.trim(),
+      image:       goal.image
     }
 
-    if (goal.image) {
-      insertPayload.image = goal.image
-    }
-
-    const { data, error } = await supabase
-      .from('objectif')
-      .insert([insertPayload])
-      .select()
+    const { data, error } = await createObjectif(insertPayload)
 
     if (error) throw error
     return { success: true, data }
   } catch (error) {
-    console.error("Erreur IPC createObjectif:", error.message)
-    return { success: false, error: error.message }
+    console.error('Erreur IPC createObjectif:', error)
+    return { success: false, error: error.message || 'Erreur inconnue lors de la création de l\'objectif.' }
   }
 })
 
@@ -158,10 +160,7 @@ ipcMain.handle('goals:create', async (event, goal) => {
 ipcMain.removeHandler('goals:update')
 ipcMain.handle('goals:update', async (event, updates) => {
   try {
-    // ✅ getSession() lit la session locale sans appel réseau
-    const { data: { session }, error: authError } = await supabase.auth.getSession()
-    if (authError || !session) throw new Error("Utilisateur non authentifié")
-    const user = session.user
+    const user = await getAuthenticatedUser()
 
     const { id, ...fields } = updates
 
@@ -172,7 +171,7 @@ ipcMain.handle('goals:update', async (event, updates) => {
       .maybeSingle()
 
     if (checkError || !objectif || objectif.user_id !== user.id) {
-      throw new Error("Accès non autorisé à cet objectif")
+      throw new Error('Accès non autorisé à cet objectif')
     }
 
     const { error } = await supabase
@@ -192,10 +191,7 @@ ipcMain.handle('goals:update', async (event, updates) => {
 ipcMain.removeHandler('goals:delete')
 ipcMain.handle('goals:delete', async (event, id) => {
   try {
-    // ✅ getSession() lit la session locale sans appel réseau
-    const { data: { session }, error: authError } = await supabase.auth.getSession()
-    if (authError || !session) throw new Error("Utilisateur non authentifié")
-    const user = session.user
+    const user = await getAuthenticatedUser()
 
     const { data: objectif, error: checkError } = await supabase
       .from('objectif')
@@ -204,7 +200,7 @@ ipcMain.handle('goals:delete', async (event, id) => {
       .maybeSingle()
 
     if (checkError || !objectif || objectif.user_id !== user.id) {
-      throw new Error("Accès non autorisé à cet objectif")
+      throw new Error('Accès non autorisé à cet objectif')
     }
 
     const { error } = await supabase

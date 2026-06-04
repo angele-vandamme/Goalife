@@ -49,8 +49,12 @@ async function signUp(email, password, prenom, nom) {
 }
     
   async function getUser() {
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
+  const { data, error } = await supabase.auth.getUser()
+  if (error) {
+    console.error('Erreur getUser service:', error.message)
+    return null
+  }
+  return data?.user ?? null
 }
 
 module.exports = { signUp, signIn, signOut, getUser }
