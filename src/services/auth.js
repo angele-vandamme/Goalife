@@ -18,7 +18,10 @@ async function signUp(email, password, prenom, nom) {
       }
     })
 
-    if (error) throw error
+    if (error) {
+      console.error('Erreur signUp service:', error.message)
+      return { data: null, error }
+    }
 
     if (data?.session) {
       cacheSession(data.session)
@@ -27,16 +30,16 @@ async function signUp(email, password, prenom, nom) {
     if (data && data.user) {
       const { error: profileError } = await supabase
         .from('user')
-        .insert([
+        .upsert([
           {
             id: data.user.id,
             prenom,
             nom,
             email
           }
-        ])
-        .onConflict('id')
-        .ignore()
+        ], {
+          onConflict: 'id'
+        })
 
       if (profileError) {
         if (profileError.code === '23505' || profileError.message?.includes('duplicate key')) {
@@ -47,10 +50,10 @@ async function signUp(email, password, prenom, nom) {
       }
     }
 
-    return data
+    return { data, error: null }
   } catch (err) {
     console.error('Erreur signUp service:', err.message)
-    throw err
+    return { data: null, error: err }
   }
 }
 
