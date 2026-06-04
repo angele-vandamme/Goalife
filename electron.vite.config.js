@@ -1,5 +1,4 @@
 const { defineConfig } = require('electron-vite')
-const react = require('@vitejs/plugin-react').default
 const path = require('path')
 
 module.exports = defineConfig({
@@ -27,7 +26,6 @@ module.exports = defineConfig({
           index: path.resolve(__dirname, 'src/renderer/pages/auth.html')
         }
       }
-    },
-    plugins: [react()]
+    }
   }
 })

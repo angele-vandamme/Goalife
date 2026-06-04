@@ -7,7 +7,7 @@ window.navigate = function(page) {
     'compte':          'compte.html',
     'nouvel-objectif': 'nouvel-objectif.html',
     'objectif-pro':   'objectifs.html?type=professionnel',
-    'objectif-perso':  'objectifs.html?type=pzzersonnel',
+    'objectif-perso':  'objectifs.html?type=personnel',
     'parametres':      'parametres.html',
     'a-propos': 'a-propos.html'
   };
