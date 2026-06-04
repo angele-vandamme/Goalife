@@ -43,14 +43,24 @@ function initNouvelObjectifPage() {
     btnImporter.addEventListener('click', async () => {
       console.log("Clic sur le bouton Importer détecté. Appel de l'API...");
       try {
-        const path = await window.api.selectImage();
-        console.log("Chemin reçu de l'API :", path);
+        const result = await window.api.selectImage();
+        console.log("Chemin reçu de l'API :", result);
+        const path = result?.path;
+        const dataUrl = result?.dataUrl;
         
-        if (path) {
+        if (path && dataUrl) {
           cheminImageSelectionnee = path;
           const preview = document.getElementById('image-preview');
           if (preview) {
-            preview.innerHTML = `<img src="${path}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" />`;
+            preview.textContent = '';
+            const imageElement = document.createElement('img');
+            imageElement.alt = 'Aperçu de l\'image';
+            imageElement.src = dataUrl;
+            imageElement.addEventListener('error', () => {
+              console.error('Impossible de charger l\'image :', dataUrl);
+              preview.textContent = 'Aperçu';
+            });
+            preview.appendChild(imageElement);
           }
         }
       } catch (err) {

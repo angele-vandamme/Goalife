@@ -1,4 +1,5 @@
 const { ipcMain, dialog, Notification, app } = require('electron')
+const path = require('path')
 const { signUp, signIn, signOut, getUser } = require('../services/auth')
 const { getObjectifs, createObjectif, updateObjectif, deleteObjectif } = require('../services/goals')
 const { supabase } = require('../services/supabase')
@@ -233,7 +234,21 @@ ipcMain.handle('image:select', async () => {
       return null
     }
 
-    return result.filePaths[0]
+    const selectedPath = result.filePaths[0]
+    const imageData = require('fs').readFileSync(selectedPath)
+    const extension = path.extname(selectedPath).slice(1).toLowerCase()
+    const mimeType = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      webp: 'image/webp'
+    }[extension] || 'application/octet-stream'
+
+    return {
+      path: selectedPath,
+      dataUrl: `data:${mimeType};base64,${imageData.toString('base64')}`
+    }
   } catch (error) {
     console.error("Erreur IPC selectImage:", error.message)
     return null

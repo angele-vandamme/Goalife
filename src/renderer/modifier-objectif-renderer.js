@@ -11,6 +11,8 @@ window.navigate = function(page) {
   if (routes[page]) window.location.href = routes[page];
 }
 
+let cheminImageSelectionnee = null;
+
 async function initModifierObjectifPage() {
   window.focus()
   document.body.style.pointerEvents = 'auto';
@@ -37,10 +39,52 @@ async function initModifierObjectifPage() {
         document.getElementById('select-type').value       = o.type || 'professionnel';
         document.getElementById('select-importance').value = o.importance || 'moyenne';
         document.getElementById('input-description').value = o.description || '';
+
+        if (o.image) {
+          const preview = document.getElementById('image-preview');
+          if (preview) {
+            preview.textContent = '';
+            const imageElement = document.createElement('img');
+            imageElement.alt = 'Aperçu de l\'image';
+            imageElement.src = o.image;
+            imageElement.addEventListener('error', () => {
+              preview.textContent = 'Aperçu';
+            });
+            preview.appendChild(imageElement);
+          }
+        }
       }
     }
   } catch (err) {
     console.error('Erreur pré-remplissage:', err);
+  }
+
+  const btnImporter = document.getElementById('btn-importer');
+  if (btnImporter) {
+    btnImporter.addEventListener('click', async () => {
+      try {
+        const result = await window.api.selectImage();
+        const imagePath = result?.path;
+        const dataUrl = result?.dataUrl;
+        if (imagePath && dataUrl) {
+          cheminImageSelectionnee = imagePath;
+          const preview = document.getElementById('image-preview');
+          if (preview) {
+            preview.textContent = '';
+            const imageElement = document.createElement('img');
+            imageElement.alt = 'Aperçu de l\'image';
+            imageElement.src = dataUrl;
+            imageElement.addEventListener('error', () => {
+              console.error('Impossible de charger l\'image :', dataUrl);
+              preview.textContent = 'Aperçu';
+            });
+            preview.appendChild(imageElement);
+          }
+        }
+      } catch (err) {
+        console.error('Erreur lors de la sélection de l\'image :', err);
+      }
+    });
   }
 
   const form = document.getElementById('form-modifier-objectif');
@@ -56,6 +100,9 @@ async function initModifierObjectifPage() {
         importance:  document.getElementById('select-importance').value,
         description: document.getElementById('input-description').value
       };
+      if (cheminImageSelectionnee) {
+        updated.image = cheminImageSelectionnee;
+      }
       console.log('updated:', JSON.stringify(updated)); // debug temporaire
       const res = await window.api.updateObjectif(updated);
       if (res.success) {
