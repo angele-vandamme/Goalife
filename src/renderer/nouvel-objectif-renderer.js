@@ -68,7 +68,7 @@ function initNouvelObjectifPage() {
 
     function showFormMessage(message, isError = true) {
       if (!formMessage) {
-        if (isError) alert(message)
+        console.warn(message)
         return
       }
       formMessage.textContent = message
