@@ -23,6 +23,11 @@ function initNouvelObjectifPage() {
   document.body.style.userSelect = 'auto';
   document.body.style.opacity = '1';
 
+  const titleInput = document.getElementById('input-nom');
+  if (titleInput) {
+    titleInput.focus();
+  }
+
   // Profil en arrière-plan, ne bloque plus l'UI
   window.api.getUserProfile()
     .then(profile => {

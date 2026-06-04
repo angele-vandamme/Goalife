@@ -18,6 +18,7 @@ window.navigate = function(page) {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
+  window.focus()
   // Charger le prénom pour la sidebar
   try {
     const profile = await window.api.getUserProfile();

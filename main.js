@@ -1,4 +1,5 @@
 const { app, shell, BrowserWindow, Tray, Menu, crashReporter, ipcMain} = require('electron')
+app.disableHardwareAcceleration()
 // Importe le client supabase déjà configuré dans ton projet (ajuste le chemin si nécessaire)
 const { supabase } = require('./src/services/supabase.js')
 const path = require('path')
@@ -90,7 +91,38 @@ const createWindow = () => {
   //mainWindow.webContents.openDevTools()
 
   mainWindow.on('ready-to-show', () => {
+    mainWindow.setFocusable(true)
     mainWindow.show()
+    mainWindow.focus()
+    mainWindow.moveTop()
+  })
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.setFocusable(true)
+      mainWindow.focus()
+      mainWindow.moveTop()
+      mainWindow.webContents.focus()
+      setTimeout(() => {
+        if (!mainWindow.isDestroyed()) {
+          mainWindow.focus()
+          mainWindow.webContents.focus()
+        }
+      }, 100)
+    }
+  })
+
+  mainWindow.on('show', () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.focus()
+      mainWindow.webContents.focus()
+    }
+  })
+
+  mainWindow.on('focus', () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.webContents.focus()
+    }
   })
 
 // GESTION DE LA FERMETURE : Cacher la fenêtre au lieu de quitter l'app
@@ -156,6 +188,7 @@ app.whenReady().then(() => {
   // Double-clic ou clic gauche pour restaurer la fenêtre directement
   tray.on('click', () => {
     mainWindow.show()
+    mainWindow.focus()
   })
 
   tray.on('right-click', () => {
@@ -164,6 +197,7 @@ app.whenReady().then(() => {
   
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    else if (mainWindow) mainWindow.focus()
   })
 }).catch(err => {
   console.error("Erreur lors du démarrage d'Electron :", err)

@@ -4,6 +4,8 @@ const toRegisterBtn = document.getElementById('to-register');
 const toLoginBtn = document.getElementById('to-login');
 const errorTxt = document.getElementById('error-txt');
 
+window.focus()
+
 // Basculer vers l'inscription
 toRegisterBtn.addEventListener('click', () => {
   loginForm.classList.add('hidden');

@@ -70,4 +70,7 @@ window.navigate = function(page) {
     }
   }
 
-document.addEventListener('DOMContentLoaded', loadDashboard);
+document.addEventListener('DOMContentLoaded', () => {
+  window.focus()
+  loadDashboard()
+});

@@ -1,5 +1,6 @@
 "use strict";
 const { app, shell, BrowserWindow, Tray, Menu, crashReporter, ipcMain } = require("electron");
+app.disableHardwareAcceleration();
 const { supabase } = require("./src/services/supabase.js");
 const path = require("path");
 const fs = require("fs");
@@ -68,7 +69,35 @@ const createWindow = () => {
     }
   });
   mainWindow.on("ready-to-show", () => {
+    mainWindow.setFocusable(true);
     mainWindow.show();
+    mainWindow.focus();
+    mainWindow.moveTop();
+  });
+  mainWindow.webContents.on("did-finish-load", () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.setFocusable(true);
+      mainWindow.focus();
+      mainWindow.moveTop();
+      mainWindow.webContents.focus();
+      setTimeout(() => {
+        if (!mainWindow.isDestroyed()) {
+          mainWindow.focus();
+          mainWindow.webContents.focus();
+        }
+      }, 100);
+    }
+  });
+  mainWindow.on("show", () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.focus();
+      mainWindow.webContents.focus();
+    }
+  });
+  mainWindow.on("focus", () => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.webContents.focus();
+    }
   });
   mainWindow.on("close", (event) => {
     if (!app.isQuitting) {
@@ -112,12 +141,14 @@ app.whenReady().then(() => {
   tray.setContextMenu(contextMenu);
   tray.on("click", () => {
     mainWindow.show();
+    mainWindow.focus();
   });
   tray.on("right-click", () => {
     tray.popUpContextMenu(contextMenu);
   });
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    else if (mainWindow) mainWindow.focus();
   });
 }).catch((err) => {
   console.error("Erreur lors du démarrage d'Electron :", err);

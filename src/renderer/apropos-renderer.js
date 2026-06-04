@@ -21,6 +21,7 @@ window.navigate = function(page) {
 // 2. AFFICHAGE DYNAMIQUE DU PRÉNOM (Depuis la session)
 // =========================================================================
 document.addEventListener('DOMContentLoaded', () => {
+  window.focus()
   // On récupère le prénom stocké lors de la connexion
   const cachedPrenom = sessionStorage.getItem('user_prenom') || 'Utilisateur';
 

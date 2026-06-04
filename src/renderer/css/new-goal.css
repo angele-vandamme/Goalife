@@ -178,6 +178,19 @@ body {
     border-color: #7B5EA7;
 }
 
+.input-field {
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
+}
+
+.form-group,
+.form-container,
+.goal-card {
+    position: relative;
+    z-index: 1;
+}
+
 textarea.input-field {
     height: 110px;
     resize: none;

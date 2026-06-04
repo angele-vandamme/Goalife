@@ -12,6 +12,7 @@ window.navigate = function(page) {
 }
 
 async function initModifierObjectifPage() {
+  window.focus()
   document.body.style.pointerEvents = 'auto';
   document.body.style.userSelect = 'auto';
   document.body.style.opacity = '1';
