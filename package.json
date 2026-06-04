@@ -1,0 +1,49 @@
+{
+  "name": "goalife",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Goalife desktop app",
+  "main": "main.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "dist": "electron-vite build",
+    "package": "electron-builder --dir",
+    "make": "electron-builder",
+    "preview": "electron-vite preview",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.35.0",
+    "ws": "^8.14.0"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.8.0",
+    "electron-vite": "^4.0.0",
+    "vite": "^5.4.0"
+  },
+  "build": {
+    "appId": "com.goalife.app",
+    "productName": "Goalife",
+    "directories": {
+      "output": "dist-installer"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      "src/**/*",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "src/assets/logo-goalife.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

@@ -127,23 +127,27 @@ ipcMain.handle('goals:create', async (event, goal) => {
     if (authError || !session) throw new Error("Utilisateur non connecté")
     const user = session.user
 
+    const insertPayload = {
+      user_id:     user.id,
+      nom:         goal.nom,
+      statut:      goal.statut,
+      duree:       goal.duree,
+      type:        goal.type,
+      importance:  goal.importance,
+      description: goal.description
+    }
+
+    if (goal.image) {
+      insertPayload.image = goal.image
+    }
+
     const { data, error } = await supabase
       .from('objectif')
-      .insert([
-        {
-          user_id:     user.id,
-          nom:         goal.nom,
-          statut:      goal.statut,
-          duree:       goal.duree,
-          type:        goal.type,
-          importance:  goal.importance,
-          description: goal.description,
-          image:       goal.image
-        }
-      ])
+      .insert([insertPayload])
+      .select()
 
     if (error) throw error
-    return { success: true }
+    return { success: true, data }
   } catch (error) {
     console.error("Erreur IPC createObjectif:", error.message)
     return { success: false, error: error.message }

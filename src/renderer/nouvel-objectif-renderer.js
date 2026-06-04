@@ -18,9 +18,12 @@ function annuler() {
   window.location.href = 'dashboard.html';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initNouvelObjectifPage() {
+  document.body.style.pointerEvents = 'auto';
+  document.body.style.userSelect = 'auto';
+  document.body.style.opacity = '1';
 
-// Profil en arrière-plan, ne bloque plus l'UI
+  // Profil en arrière-plan, ne bloque plus l'UI
   window.api.getUserProfile()
     .then(profile => {
       if (profile?.data?.prenom) {
@@ -29,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(err => console.error("Erreur chargement profil sidebar:", err));
 
-    // Gestion du bouton Importer
+  // Gestion du bouton Importer
   const btnImporter = document.getElementById('btn-importer');
   if (btnImporter) {
     btnImporter.addEventListener('click', async () => {
@@ -59,24 +62,33 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const currentUser = await window.api.getUser();
+      if (!currentUser) {
+        alert("Veuillez vous connecter pour créer un objectif.");
+        return;
+      }
+
       // Récupération des éléments à afficher
-    const objectifData = {
+      const objectifData = {
         nom: document.getElementById('input-nom').value,
         statut: document.getElementById('select-statut').value,
         duree: document.getElementById('select-duree').value, // Court/Moyen/Long terme
         type: document.getElementById('select-type').value,   // 'professionnel' ou 'personnel'
-        importance: 'moyenne', // On met 'moyenne' par défaut
+        importance: document.getElementById('select-importance').value,
         description: document.getElementById('input-description').value,
         image: cheminImageSelectionnee
-    };
+      };
 
       try {
         const result = await window.api.createObjectif(objectifData);
+        console.log('createObjectif result:', result);
 
         if (result && result.success) {
-          // 💡 FONCTIONNALITÉ NATIVE OS : Notification système
-          await window.api.sendNotification('Goalife 🎯', `L'objectif "${objectifData.nom}" a bien été créé !`);
-          // Retour automatique au Dashboard
+          try {
+            await window.api.sendNotification('Goalife 🎯', `L'objectif "${objectifData.nom}" a bien été créé !`);
+          } catch (notifyError) {
+            console.warn('Notification non disponible :', notifyError);
+          }
           window.location.href = 'dashboard.html';
         } else {
           alert("Erreur Supabase : " + (result.error || "Impossible d'insérer l'objectif."));
@@ -87,4 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initNouvelObjectifPage);
+} else {
+  initNouvelObjectifPage();
+}

@@ -11,7 +11,10 @@ window.navigate = function(page) {
   if (routes[page]) window.location.href = routes[page];
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function initModifierObjectifPage() {
+  document.body.style.pointerEvents = 'auto';
+  document.body.style.userSelect = 'auto';
+  document.body.style.opacity = '1';
 
   const params = new URLSearchParams(window.location.search);
   const objectifId = params.get('id');
@@ -35,42 +38,58 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('input-description').value = o.description || '';
       }
     }
-  
   } catch (err) {
     console.error('Erreur pré-remplissage:', err);
   }
 
-  // Modifier
-  document.getElementById('form-modifier-objectif').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const updated = {
-      id:          objectifId,
-      nom:         document.getElementById('input-nom').value,
-      statut:      document.getElementById('select-statut').value,
-      duree:       document.getElementById('select-duree').value,
-      type:        document.getElementById('select-type').value,
-      importance:  document.getElementById('select-importance').value,
-      description: document.getElementById('input-description').value
-    };
-    console.log('updated:', JSON.stringify(updated)); // debug temporaire
-    const res = await window.api.updateObjectif(updated);
-    if (res.success) {
-      await window.api.sendNotification('Goalife ✏️', `L'objectif "${updated.nom}" a été modifié !`);
-      history.back();
-    } else {
-      alert('Erreur : ' + res.error);
-    }
-  });
-
-  // Supprimer
-  document.getElementById('btn-supprimer').addEventListener('click', async () => {
-    if (confirm('Supprimer cet objectif ?')) {
-      const res = await window.api.deleteObjectif(objectifId);
+  const form = document.getElementById('form-modifier-objectif');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const updated = {
+        id:          objectifId,
+        nom:         document.getElementById('input-nom').value,
+        statut:      document.getElementById('select-statut').value,
+        duree:       document.getElementById('select-duree').value,
+        type:        document.getElementById('select-type').value,
+        importance:  document.getElementById('select-importance').value,
+        description: document.getElementById('input-description').value
+      };
+      console.log('updated:', JSON.stringify(updated)); // debug temporaire
+      const res = await window.api.updateObjectif(updated);
       if (res.success) {
-        await window.api.sendNotification('Goalife 🗑️', `Objectif supprimé avec succès.`);
-        window.location.href = 'dashboard.html';
+        try {
+          await window.api.sendNotification('Goalife ✏️', `L'objectif "${updated.nom}" a été modifié !`);
+        } catch (notifyError) {
+          console.warn('Notification modif non disponible :', notifyError);
+        }
+        history.back();
+      } else {
+        alert('Erreur : ' + res.error);
       }
-    }
-  });
+    });
+  }
 
-});
+  const deleteBtn = document.getElementById('btn-supprimer');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', async () => {
+      if (confirm('Supprimer cet objectif ?')) {
+        const res = await window.api.deleteObjectif(objectifId);
+        if (res.success) {
+          try {
+            await window.api.sendNotification('Goalife 🗑️', `Objectif supprimé avec succès.`);
+          } catch (notifyError) {
+            console.warn('Notification suppression non disponible :', notifyError);
+          }
+          window.location.href = 'dashboard.html';
+        }
+      }
+    });
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initModifierObjectifPage);
+} else {
+  initModifierObjectifPage();
+}

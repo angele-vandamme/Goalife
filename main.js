@@ -2,7 +2,27 @@ const { app, shell, BrowserWindow, Tray, Menu, crashReporter, ipcMain} = require
 // Importe le client supabase déjà configuré dans ton projet (ajuste le chemin si nécessaire)
 const { supabase } = require('./src/services/supabase.js')
 const path = require('path')
+const fs = require('fs')
 require('./src/main/ipc.js')
+
+function getAppIconPath() {
+  const candidates = [
+    path.join(__dirname, 'src', 'assets', 'logo-goalife.ico'),
+    path.join(__dirname, '..', 'src', 'assets', 'logo-goalife.ico'),
+    path.join(__dirname, '..', '..', 'src', 'assets', 'logo-goalife.ico'),
+    path.join(process.cwd(), 'src', 'assets', 'logo-goalife.ico')
+  ]
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate
+    }
+  }
+
+  const fallback = candidates[candidates.length - 1]
+  console.warn(`Aucune icône trouvée. Chemin par défaut utilisé : ${fallback}`)
+  return fallback
+}
 
 crashReporter.start({
   productName: 'Goalife',
@@ -57,7 +77,7 @@ const createWindow = () => {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    icon: path.join(__dirname, 'src', 'assets', 'logo-goalife.ico'),
+    icon: getAppIconPath(),
     webPreferences: {
       preload: path.join(__dirname, 'src/main/preload.js'),
       sandbox: false,
@@ -107,7 +127,7 @@ app.whenReady().then(() => {
   // Créer la fenêtre principale
   createWindow()
   
-  const iconPath = path.join(__dirname, 'src', 'assets', 'logo-goalife.ico')
+  const iconPath = getAppIconPath()
   tray = new Tray(iconPath)
 
 
