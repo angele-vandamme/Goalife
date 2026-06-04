@@ -102,10 +102,10 @@ function initNouvelObjectifPage() {
 
       const objectifData = {
         nom: document.getElementById('input-nom').value.trim(),
-        statut: document.getElementById('select-statut').value,
-        duree: document.getElementById('select-duree').value,
-        type: document.getElementById('select-type').value,
-        importance: document.getElementById('select-importance').value,
+        statut: document.getElementById('select-statut').value.trim() || 'en cours',
+        duree: document.getElementById('select-duree').value.trim(),
+        type: document.getElementById('select-type').value.trim(),
+        importance: document.getElementById('select-importance').value.trim(),
         description: document.getElementById('input-description').value.trim(),
         image: cheminImageSelectionnee
       };

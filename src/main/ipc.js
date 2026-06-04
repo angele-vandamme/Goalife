@@ -136,10 +136,17 @@ ipcMain.handle('goals:create', async (event, goal) => {
       throw new Error('Veuillez renseigner le nom et la description de l\'objectif.')
     }
 
+    const allowedStatuts = ['en cours', 'réalisé', 'à faire', 'à planifier']
+    const statut = goal.statut?.trim()
+    const validatedStatut = allowedStatuts.includes(statut) ? statut : 'en cours'
+    if (statut && !allowedStatuts.includes(statut)) {
+      console.warn(`Statut invalide reçu, fallback vers 'en cours': ${statut}`)
+    }
+
     const insertPayload = {
       user_id:     user.id,
       nom:         goal.nom.trim(),
-      statut:      goal.statut,
+      statut:      validatedStatut,
       duree:       goal.duree,
       type:        goal.type,
       importance:  goal.importance,
