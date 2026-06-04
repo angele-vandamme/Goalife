@@ -35,9 +35,15 @@ async function signUp(email, password, prenom, nom) {
             email
           }
         ])
+        .onConflict('id')
+        .ignore()
 
       if (profileError) {
-        console.error('Erreur lors de la création auto du profil :', profileError.message)
+        if (profileError.code === '23505' || profileError.message?.includes('duplicate key')) {
+          console.warn('Profil existant déjà, création auto ignorée.')
+        } else {
+          console.error('Erreur lors de la création auto du profil :', profileError.message)
+        }
       }
     }
 
