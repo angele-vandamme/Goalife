@@ -22,9 +22,6 @@ body {
     gap: 8px;
     width: 100%;
     flex-shrink: 0;
-    position: absolute;
-    top: 0;
-    right: 0;
 }
 
 .topbar span {

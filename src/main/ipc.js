@@ -34,33 +34,33 @@ ipcMain.handle('settings:setAutoLaunch', (event, enabled) => {
 })
 
 // Ajout pour le Dashboard : Récupérer les infos de la table 'user' ou des métadonnées
-ipcMain.removeHandler('profile:getUserProfile'); // Sécurité doublon
+ipcMain.removeHandler('profile:getUserProfile')
 ipcMain.handle('profile:getUserProfile', async () => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) return { data: null }
+    // getSession() lit la session locale sans appel réseau
+    const { data: { session }, error: authError } = await supabase.auth.getSession()
+    if (authError || !session) return { data: null }
+    const user = session.user
 
-    // 1. On tente de récupérer le prénom dans la table personnalisée 'user'
     const { data, error } = await supabase
       .from('user')
       .select('prenom, nom')
       .eq('id', user.id)
-      .maybeSingle() 
+      .maybeSingle()
 
     if (error) throw error
 
-    // 2. DOUBLE SÉCURITÉ : Si la table 'user' est vide, on prend le prénom des métadonnées d'inscription
     if (!data || !data.prenom) {
-      console.log("Table 'user' vide, récupération via user_metadata...");
+      console.log("Table 'user' vide, récupération via user_metadata...")
       return {
         data: {
           prenom: user.user_metadata?.prenom || user.email,
           nom: user.user_metadata?.nom || ''
         }
-      };
+      }
     }
 
-    return { data } 
+    return { data }
   } catch (error) {
     console.error('Erreur IPC getUserProfile:', error.message)
     return { data: null }
@@ -72,11 +72,13 @@ ipcMain.handle('profile:getUserProfile', async () => {
 // =========================================================================
 
 // Récupérer la liste complète filtrée par l'utilisateur connecté, triée par nouveauté
-ipcMain.removeHandler('goals:get'); 
+ipcMain.removeHandler('goals:get')
 ipcMain.handle('goals:get', async () => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) throw new Error("Utilisateur non authentifié")
+    // getSession() lit la session locale sans appel réseau
+    const { data: { session }, error: authError } = await supabase.auth.getSession()
+    if (authError || !session) throw new Error("Utilisateur non authentifié")
+    const user = session.user
 
     const { data, error } = await supabase
       .from('objectif')
@@ -85,7 +87,7 @@ ipcMain.handle('goals:get', async () => {
       .order('created_at', { ascending: false })
 
     if (error) throw error
-    return { data } 
+    return { data }
   } catch (error) {
     console.error('Erreur IPC getObjectifs:', error.message)
     return { data: [] }
@@ -96,8 +98,10 @@ ipcMain.handle('goals:get', async () => {
 ipcMain.removeHandler('goals:getByType')
 ipcMain.handle('goals:getByType', async (event, type) => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) throw new Error("Utilisateur non authentifié")
+    // getSession() lit la session locale sans appel réseau
+    const { data: { session }, error: authError } = await supabase.auth.getSession()
+    if (authError || !session) throw new Error("Utilisateur non authentifié")
+    const user = session.user
 
     const { data, error } = await supabase
       .from('objectif')
@@ -115,11 +119,13 @@ ipcMain.handle('goals:getByType', async (event, type) => {
 })
 
 // Créer un nouvel objectif en BDD
-ipcMain.removeHandler('goals:create'); // 🎯 Sécurité doublon
+ipcMain.removeHandler('goals:create')
 ipcMain.handle('goals:create', async (event, goal) => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) throw new Error("Utilisateur non connecté")
+    // getSession() lit la session locale sans appel réseau
+    const { data: { session }, error: authError } = await supabase.auth.getSession()
+    if (authError || !session) throw new Error("Utilisateur non connecté")
+    const user = session.user
 
     const { data, error } = await supabase
       .from('objectif')
@@ -145,52 +151,54 @@ ipcMain.handle('goals:create', async (event, goal) => {
 })
 
 // Modifier un objectif (avec vérification de propriété)
-ipcMain.removeHandler('goals:update');
+ipcMain.removeHandler('goals:update')
 ipcMain.handle('goals:update', async (event, updates) => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) throw new Error("Utilisateur non authentifié")
+    // ✅ getSession() lit la session locale sans appel réseau
+    const { data: { session }, error: authError } = await supabase.auth.getSession()
+    if (authError || !session) throw new Error("Utilisateur non authentifié")
+    const user = session.user
 
-    const { id, ...fields } = updates;
-    
-    // Vérifier que l'objectif appartient à l'utilisateur
+    const { id, ...fields } = updates
+
     const { data: objectif, error: checkError } = await supabase
       .from('objectif')
       .select('user_id')
       .eq('id', id)
       .maybeSingle()
-    
+
     if (checkError || !objectif || objectif.user_id !== user.id) {
       throw new Error("Accès non autorisé à cet objectif")
     }
 
-    const { error, data } = await supabase
+    const { error } = await supabase
       .from('objectif')
       .update(fields)
-      .eq('id', id);
-    
-    if (error) throw error;
-    return { success: true };
+      .eq('id', id)
+
+    if (error) throw error
+    return { success: true }
   } catch (error) {
-    console.error('Erreur IPC updateObjectif:', error.message);
-    return { success: false, error: error.message };
+    console.error('Erreur IPC updateObjectif:', error.message)
+    return { success: false, error: error.message }
   }
-});
+})
 
 // Supprimer un objectif (avec vérification de propriété)
-ipcMain.removeHandler('goals:delete');
+ipcMain.removeHandler('goals:delete')
 ipcMain.handle('goals:delete', async (event, id) => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) throw new Error("Utilisateur non authentifié")
+    // ✅ getSession() lit la session locale sans appel réseau
+    const { data: { session }, error: authError } = await supabase.auth.getSession()
+    if (authError || !session) throw new Error("Utilisateur non authentifié")
+    const user = session.user
 
-    // Vérifier que l'objectif appartient à l'utilisateur
     const { data: objectif, error: checkError } = await supabase
       .from('objectif')
       .select('user_id')
       .eq('id', id)
       .maybeSingle()
-    
+
     if (checkError || !objectif || objectif.user_id !== user.id) {
       throw new Error("Accès non autorisé à cet objectif")
     }
@@ -198,20 +206,20 @@ ipcMain.handle('goals:delete', async (event, id) => {
     const { error } = await supabase
       .from('objectif')
       .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
-    return { success: true };
+      .eq('id', id)
+
+    if (error) throw error
+    return { success: true }
   } catch (error) {
     console.error('Erreur IPC deleteObjectif:', error.message)
-    return { success: false, error: error.message };
+    return { success: false, error: error.message }
   }
-});
+})
 
 // =========================================================================
 // Écouteur pour l'Image
 // =========================================================================
-ipcMain.removeHandler('image:select');
+ipcMain.removeHandler('image:select')
 ipcMain.handle('image:select', async () => {
   try {
     const result = await dialog.showOpenDialog({
@@ -242,7 +250,7 @@ ipcMain.handle('notification:send', (event, { title, body }) => {
 // =========================================================================
 // Paramètres système
 // =========================================================================
-// Export JSON 
+// Export JSON
 ipcMain.removeHandler('goals:export')
 ipcMain.handle('goals:export', async (event, data) => {
   try {

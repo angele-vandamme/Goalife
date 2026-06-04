@@ -18,16 +18,16 @@ function annuler() {
   window.location.href = 'dashboard.html';
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  // Afficher le prénom de l'utilisateur connecté dans la sidebar
-  try {
-      const profile = await window.api.getUserProfile();
+document.addEventListener('DOMContentLoaded', () => {
+
+// Profil en arrière-plan, ne bloque plus l'UI
+  window.api.getUserProfile()
+    .then(profile => {
       if (profile?.data?.prenom) {
         document.getElementById('user-name').textContent = profile.data.prenom;
       }
-    } catch (err) {
-        console.error("Erreur chargement profil sidebar:", err);
-    }
+    })
+    .catch(err => console.error("Erreur chargement profil sidebar:", err));
 
     // Gestion du bouton Importer
   const btnImporter = document.getElementById('btn-importer');
