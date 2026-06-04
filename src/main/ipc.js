@@ -33,13 +33,14 @@ ipcMain.handle('settings:setAutoLaunch', (event, enabled) => {
   return { success: true }
 })
 
-// Ajout pour le Dashboard : Récupérer les infos de la table 'user'
+// Ajout pour le Dashboard : Récupérer les infos de la table 'user' ou des métadonnées
 ipcMain.removeHandler('profile:getUserProfile'); // Sécurité doublon
 ipcMain.handle('profile:getUserProfile', async () => {
   try {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return { data: null }
 
+    // 1. On tente de récupérer le prénom dans la table personnalisée 'user'
     const { data, error } = await supabase
       .from('user')
       .select('prenom, nom')
@@ -47,6 +48,18 @@ ipcMain.handle('profile:getUserProfile', async () => {
       .maybeSingle() 
 
     if (error) throw error
+
+    // 2. DOUBLE SÉCURITÉ : Si la table 'user' est vide, on prend le prénom des métadonnées d'inscription
+    if (!data || !data.prenom) {
+      console.log("Table 'user' vide, récupération via user_metadata...");
+      return {
+        data: {
+          prenom: user.user_metadata?.prenom || user.email,
+          nom: user.user_metadata?.nom || ''
+        }
+      };
+    }
+
     return { data } 
   } catch (error) {
     console.error('Erreur IPC getUserProfile:', error.message)
@@ -55,7 +68,7 @@ ipcMain.handle('profile:getUserProfile', async () => {
 })
 
 // =========================================================================
-// Écouteurs pour les Objectifs (Nettoyés et sécurisés contre les doublons)
+// Écouteurs pour les Objectifs
 // =========================================================================
 
 // Récupérer la liste complète filtrée par l'utilisateur connecté, triée par nouveauté
@@ -247,4 +260,3 @@ ipcMain.handle('goals:export', async (event, data) => {
     return { success: false, error: error.message }
   }
 })
-

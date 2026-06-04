@@ -18,19 +18,18 @@ function annuler() {
   window.location.href = 'dashboard.html';
 }
 
-// Fonction principale qui contient TOUT ton code d'initialisation
-async function initialiserPage() {
-  // 1. Afficher le prénom de l'utilisateur connecté dans la sidebar
+document.addEventListener('DOMContentLoaded', async () => {
+  // Afficher le prénom de l'utilisateur connecté dans la sidebar
   try {
       const profile = await window.api.getUserProfile();
       if (profile?.data?.prenom) {
         document.getElementById('user-name').textContent = profile.data.prenom;
       }
-  } catch (err) {
-      console.error("Erreur chargement profil sidebar:", err);
-  }
+    } catch (err) {
+        console.error("Erreur chargement profil sidebar:", err);
+    }
 
-  // 2. Gestion du bouton Importer
+    // Gestion du bouton Importer
   const btnImporter = document.getElementById('btn-importer');
   if (btnImporter) {
     btnImporter.addEventListener('click', async () => {
@@ -54,22 +53,22 @@ async function initialiserPage() {
     console.error("Impossible de trouver l'élément HTML avec l'ID 'btn-importer'");
   }
 
-  // 3. Gestion de la soumission du formulaire
+  // Gestion de la soumission du formulaire
   const form = document.getElementById('form-nouvel-objectif');
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       // Récupération des éléments à afficher
-      const objectifData = {
-          nom: document.getElementById('input-nom').value,
-          statut: document.getElementById('select-statut').value,
-          duree: document.getElementById('select-duree').value, // Court/Moyen/Long terme
-          type: document.getElementById('select-type').value,   // 'professionnel' ou 'personnel'
-          importance: 'moyenne', // On met 'moyenne' par défaut
-          description: document.getElementById('input-description').value,
-          image: cheminImageSelectionnee
-      };
+    const objectifData = {
+        nom: document.getElementById('input-nom').value,
+        statut: document.getElementById('select-statut').value,
+        duree: document.getElementById('select-duree').value, // Court/Moyen/Long terme
+        type: document.getElementById('select-type').value,   // 'professionnel' ou 'personnel'
+        importance: 'moyenne', // On met 'moyenne' par défaut
+        description: document.getElementById('input-description').value,
+        image: cheminImageSelectionnee
+    };
 
       try {
         const result = await window.api.createObjectif(objectifData);
@@ -88,13 +87,4 @@ async function initialiserPage() {
       }
     });
   }
-} // 👈 La fonction initialiserPage s'arrête bien ICI maintenant.
-
-// 🚨 SÉCURISATION DU CHARGEMENT (Placée tout à fait en dehors)
-if (document.readyState === 'loading') {
-    // Le DOM charge encore, on attend le signal
-    document.addEventListener('DOMContentLoaded', initialiserPage);
-} else {
-    // Le DOM est déjà prêt (cas fréquent en prod), on lance direct !
-    initialiserPage();
-}
+});
